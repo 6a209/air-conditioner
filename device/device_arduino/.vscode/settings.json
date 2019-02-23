@@ -1,0 +1,8 @@
+{
+    "aliosStudio.sdkPath": "/Users/xingwei/.aos/AliOS-Things",
+    "terminal.integrated.env.osx": {
+        "PATH": "/Users/xingwei/.platformio/penv/bin:/Users/xingwei/.platformio/penv:/usr/local/mysql/bin:/usr/local/flutter/bin:/Users/xingwei/Downloads/android-ndk-r15c:/Users/xingwei/.fastlane/bin:/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home:/Users/xingwei/bin:/usr/local/bin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin",
+        "PLATFORMIO_CALLER": "vscode"
+    },
+    "aliosStudio.comPort": "/dev/cu.SLAB_USBtoUART"
+}
