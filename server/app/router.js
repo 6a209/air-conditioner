@@ -5,10 +5,9 @@
  */
 module.exports = app => {
   const { router, controller } = app;
-  router.get('/', controller.home.index);
-  router.post('/login', controller.home.login);
-  router.post('/bind', controller.home.bind);
-  router.post('/device/list', controller.home.list);
-  router.post('/device/detail', controller.home.detail);
-  router.post('/command', controller.home.command)
+  router.post('/login', controller.user.login);
+  router.post('/bind', app.jwt, controller.device.bind);
+  router.post('/device/list', app.jwt, controller.device.list);
+  router.post('/device/detail', app.jwt, controller.device.detail);
+  router.post('/command', app.jwt, controller.device.command)
 };

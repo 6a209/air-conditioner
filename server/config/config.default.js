@@ -17,6 +17,11 @@ module.exports = appInfo => {
 
   // add your middleware config here
   config.middleware = [];
+  config.security = {
+    csrf: {
+      enable: false
+    }
+  }
   
   config.jwt = {
     secret: "huahua1945"

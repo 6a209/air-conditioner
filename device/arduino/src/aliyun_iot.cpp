@@ -95,12 +95,6 @@ String aliyunIoTGetSign(String& signcontent, String& ds) {
 // void propertyPost(JsonObject& params) {
 void propertyPost() {
 
-    //     String payload = F("{\"id\":\"");
-    // payload += millis();
-    // payload += F("\",\"version\":\"1.0\",\"method\":\"thing.event.property.post\",\"params\":");
-    // payload += props;
-    // payload += F("}");
-    // return payload;
   StaticJsonBuffer<200> jsonParamsBuffer;
   JsonObject& params = jsonParamsBuffer.createObject();
 
@@ -108,7 +102,6 @@ void propertyPost() {
   params["TargetTemperature"] = 28; 
   params["PowerSwitch"] = 1;
   params["WorkMode"] = 3;
-
 
   StaticJsonBuffer<300> jsonBuffer;
   char output[300];
@@ -124,8 +117,19 @@ void propertyPost() {
   aliyunIoTPostProperty(outStr);
 }
 
+// 设备属性发布
+void aliyunPropertyPost(String dn, JsonObject property) {
 
-void onMqttConnect(bool sessionPresent) {
+}
+
+// 设备事件发布
+void aliyunEventPost(String dn, String eventIdentifer, JsonObject info) {
+
+}
+
+
+
+void _onMqttConnect(bool sessionPresent) {
   Serial.println("Connected to MQTT.");
   Serial.print("Session present: ");
   Serial.println(sessionPresent);
@@ -173,7 +177,7 @@ void onMqttUnsubscribe(uint16_t packetId) {
   Serial.println(packetId);
 }
 
-void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
+void _onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t len, size_t index, size_t total) {
   Serial.println("Publish received.");
   Serial.print("  topic: ");
   Serial.println(topic);
@@ -199,11 +203,11 @@ void onMqttPublish(uint16_t packetId) {
 
 void aliyunIoTConnect() {
     Serial.println("mqtt start connect");
-    mqttClient.onConnect(onMqttConnect);
+    mqttClient.onConnect(_onMqttConnect);
     mqttClient.onDisconnect(onMqttDisconnect);
     mqttClient.onSubscribe(onMqttSubscribe);
     mqttClient.onUnsubscribe(onMqttUnsubscribe);
-    mqttClient.onMessage(onMqttMessage);
+    mqttClient.onMessage(_onMqttMessage);
     mqttClient.onPublish(onMqttPublish);
     mqttClient.setServer(mqttBrokerIP, PORT);
     mqttClient.setClientId(mqttClientID.c_str());
