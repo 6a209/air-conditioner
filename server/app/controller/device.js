@@ -29,6 +29,20 @@ class DeviceController extends Controller {
       }
   }
 
+  async setDeviceAlias() {
+      const { app, ctx } = this
+      const uid = this.getUid()
+      const deviceId = ctx.request.body.deviceId
+      const name = ctx.request.body.name
+      const result = this.service.device.hasDevice(uid, deviceId)
+      if (!result) {
+        ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
+        return
+      }
+      this.service.device.updateDeviceName(deviceId, name)
+      ctx.body = ctx.helper.successRes(200)
+  }
+
   /**
    * 首页设备列表
    */
@@ -70,9 +84,12 @@ class DeviceController extends Controller {
     const deviceId = ctx.request.body.deviceId 
     const productId = ctx.request.body.productId
     const commandName = ctx.request.body.commandName 
-
+    const result = this.service.device.hasDevice(uid, deviceId)
+    if (!result) {
+      ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
+      return
+    }
     
-
   }
 
   getUid() {

@@ -45,4 +45,8 @@ class DeviceService extends Service {
       result['commands'] = commands
       return reslut
     }
+
+    async excuteCommand() {
+
+    }
 }
