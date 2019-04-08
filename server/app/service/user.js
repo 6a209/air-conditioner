@@ -4,7 +4,9 @@ const Service = require('egg').Service
 class UserService extends Service {
 
     async findUser(openId) {
+        console.log("openId" + openId)
         const user = await this.app.mysql.get('user', {openId: openId})
+        console.log(user.nickname)
         return user
     } 
 

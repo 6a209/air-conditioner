@@ -9,7 +9,7 @@ class DeviceController extends Controller {
     const { app, ctx } = this
     const uid = this.getUid() 
     const deviceId = ctx.request.body.deviceId
-    const result = this.service.device.createBind(uid, deviceId)
+    const result = await this.service.device.createBind(uid, deviceId)
     if (result) {
       ctx.body = ctx.helper.successRes(200)
     } else {
@@ -21,7 +21,7 @@ class DeviceController extends Controller {
       const { app, ctx } = this
       const uid = this.getUid()
       const deviceId = ctx.request.body.deviceId
-      const result = this.service.device.removeBind(uid, deviceId) 
+      const result = await this.service.device.removeBind(uid, deviceId) 
       if (result) {
         ctx.body = ctx.helper.successRes(200)
       } else {
@@ -34,7 +34,7 @@ class DeviceController extends Controller {
       const uid = this.getUid()
       const deviceId = ctx.request.body.deviceId
       const name = ctx.request.body.name
-      const result = this.service.device.hasDevice(uid, deviceId)
+      const result = await this.service.device.hasDevice(uid, deviceId)
       if (!result) {
         ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
         return
@@ -49,14 +49,14 @@ class DeviceController extends Controller {
   async list() {
     const { app, ctx } = this
     const uid = this.getUid()
-    const result = this.service.device.getUserDevice(uid) 
+    const result = await this.service.device.getUserDevice(uid) 
     const formatResult = [] 
     for (const item of result) {
       const formatItem = {}
       formatItem['productId'] = item.productId 
       formatItem['icon'] = item.icon
       formatItem['name'] = item.name
-      formatItem['id'] = item.id
+      formatItem['deviceId'] = item.id
       formatResult.push(formatItem)
     } 
     ctx.body = ctx.helper.successRes(200, formatResult)
@@ -66,12 +66,12 @@ class DeviceController extends Controller {
     const { app, ctx } = this
     const uid = this.getUid
     const deviceId = ctx.request.body.deviceId
-    const result = this.service.device.hasDevice(uid, deviceId)
+    const result = await this.service.device.hasDevice(uid, deviceId)
     if (!result) {
       ctx.body = ctx.helper.failRes(403, '你没有这个设备的权限')
       return
     }
-    const detail = this.service.device.getDetail(deviceId)
+    const detail = await this.service.device.getDetail(deviceId)
     if (detail) {
       ctx.body = ctx.helper.successRes(200, detail)
     } else {
@@ -84,7 +84,7 @@ class DeviceController extends Controller {
     const deviceId = ctx.request.body.deviceId 
     const productId = ctx.request.body.productId
     const commandName = ctx.request.body.commandName 
-    const result = this.service.device.hasDevice(uid, deviceId)
+    const result = await this.service.device.hasDevice(uid, deviceId)
     if (!result) {
       ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
       return
@@ -95,6 +95,8 @@ class DeviceController extends Controller {
   getUid() {
     let token = this.ctx.request.get('Authorization')
     token = token.replace(/Bearer /, '')
+    token = this.app.jwt.decode(token)
+    console.log(token)
     return token.uid
   }
 }

@@ -5,13 +5,13 @@ class DeviceService extends Service {
 
 
     async getUserDevice(uid) {
-      let userDevice = await this.app.mysql.get('userdevice', {id: uid})
+      let userDevice = await this.app.mysql.select('userdevice', {id: uid})
       console.log(userDevice)
       const deviceIds = []
       for (const item of userDevice) {
         deviceIds.push(item.deviceId)
       }
-      userDevice = await this.app.mysql.get('device', {id: deviceIds}) 
+      userDevice = await this.app.mysql.select('device', {id: deviceIds}) 
       return userDevice
     }
 
@@ -41,7 +41,7 @@ class DeviceService extends Service {
     async getDetail(deviceId) {
       const result = await this.app.mysql.get('device', {'id': deviceId})
       const productId = result[0].productId
-      const commands = await this.app.mysql.get('command', {'productId': productId})
+      const commands = await this.app.mysql.select('command', {'productId': productId})
       result['commands'] = commands
       return reslut
     }
@@ -50,3 +50,5 @@ class DeviceService extends Service {
 
     }
 }
+
+module.exports = DeviceService
