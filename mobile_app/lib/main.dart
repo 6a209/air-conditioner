@@ -3,11 +3,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import './index/pages/index.dart' as index;
 import './index/pages/my.dart' as my;
+import './device/pages/bind_device.dart';
 import 'dart:io';
 
 void main() {
   runApp(new MaterialApp(
-    home: new MyTabs()
+    color: Color(0xFFFF00BF),
+    home: new MyTabs(),
+    // initialRoute: '/',
+    routes: <String, WidgetBuilder> {
+      '/index': (BuildContext context) => new index.IndexPage(),
+      '/device/add': (BuildContext context) => new BindPage(),
+    },
   ));
 }
 
@@ -45,7 +52,6 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin{
   @override
   Widget build(BuildContext context){
     return new Scaffold(
-      appBar: new AppBar(title: new Text("智能红外"), backgroundColor: Colors.blueAccent),
       bottomNavigationBar: new Material(
         color: Colors.blueAccent,
         child: new TabBar(
@@ -64,7 +70,7 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin{
           new index.IndexPage(),
           new my.MyPage()
         ]
-      )
+      ),
     );
   }
 }

@@ -16,8 +16,8 @@ class IndexListData extends basedata.BaseData {
 }
 
 class IndexItem {
-  String productId;
-  String id;
+  int productId;
+  int id;
   String name;
   int status;
   String icon;
