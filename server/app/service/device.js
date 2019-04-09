@@ -28,8 +28,12 @@ class DeviceService extends Service {
       return result
     }
 
-    async createBind(uid, deviceId) {
-      const result = await this.app.mysql.insert('userdevice', {uid, deviceId})
+    async createBind(uid, pk, dn) {
+      console.log(pk)
+      console.log(dn)
+      const item = await this.app.mysql.get('device', {productKey: pk, deviceName: dn})
+      console.log(item)
+      const result = await this.app.mysql.insert('userdevice', {uid, deviceId: item.id})
       return result 
     }
 

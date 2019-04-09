@@ -8,8 +8,10 @@ class DeviceController extends Controller {
   async bind() {
     const { app, ctx } = this
     const uid = this.getUid() 
-    const deviceId = ctx.request.body.deviceId
-    const result = await this.service.device.createBind(uid, deviceId)
+    // const deviceId = ctx.request.body.deviceId
+    const pk = ctx.request.body.pk
+    const dn = ctx.request.body.dn
+    const result = await this.service.device.createBind(uid, pk, dn)
     if (result) {
       ctx.body = ctx.helper.successRes(200)
     } else {
