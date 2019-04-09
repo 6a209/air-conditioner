@@ -1,5 +1,5 @@
 
-class BroadcastData {
+class DeviceData {
 
   int code;
   String msg;
@@ -7,7 +7,7 @@ class BroadcastData {
   String dn;
   String sk;
 
-  BroadcastData.fromJSON(Map<String, dynamic> json) {
+  DeviceData.fromJSON(Map<String, dynamic> json) {
     this.code = json['code'];
     this.msg = json['msg'];
     this.pk = json['pk'];

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/device/models/broadcast_data.dart';
 import 'package:connectivity/connectivity.dart';
+import '../../base/http_utils.dart';
 
 class BindPage extends StatefulWidget {
   @override
@@ -11,7 +12,7 @@ class BindPage extends StatefulWidget {
 
 class BindPageState extends State<BindPage> {
   RawDatagramSocket _socket;
-  List<BroadcastData> _deviceList;
+  List<DeviceData> _deviceList;
   String _ssidName;
 
   @override
@@ -33,7 +34,7 @@ class BindPageState extends State<BindPage> {
           print(dg.toString());
           var codec = new Utf8Codec();
           String jsonData = codec.decode(dg.data);
-          var broadcast = BroadcastData.fromJSON(json.decode(jsonData));
+          var broadcast = DeviceData.fromJSON(json.decode(jsonData));
 
           if (broadcast.code == 200) {
             addDevice(broadcast);
@@ -43,13 +44,16 @@ class BindPageState extends State<BindPage> {
     });
   }
 
-  void addDevice(BroadcastData data) {
+  void addDevice(DeviceData data) {
     for (var item in _deviceList) {
       if (item.dn == data.dn) {
         return;
       }
     }
-    _deviceList.add(data);
+    // print(data);
+    setState(() {
+      _deviceList.add(data);
+    });
   }
 
   void resetDevice() {
@@ -94,41 +98,59 @@ class BindPageState extends State<BindPage> {
             new Container(
               margin: EdgeInsets.only(top: 32.0),
               child: new Text('当前在线设备列表:'),
+            ), 
+            new Container(
+              margin: EdgeInsets.only(top: 12.0),
+              child: _buildDeviceList(context),
             )
-            // new ListView.separated(
-            //     itemCount: _deviceList.length,
-            //     itemBuilder: (BuildContext context, int index) {
-            //       BroadcastData itemData = _deviceList[index];
-            //       String dn = itemData.dn;
-            //       String pk = itemData.pk;
-            //       return new Container(
-            //         child: new Row(
-            //           children: <Widget>[
-            //             new Column(children: <Widget>[
-            //               new Text("DeviceName: $dn"),
-            //               new Text("ProductKey: $pk")
-            //             ],),
-            //             new FlatButton(
-            //               onPressed: () {
-            //               },
-            //               child: Text("绑定"),
-            //               color: Colors.blue,)
-            //           ],
-            //         ),
-            //       );
-            //     },
-            //     separatorBuilder: (BuildContext context, int index) {
-            //       return new Divider(height: 1.0, color: Color(0x7F606060),);
-            //     },)
           ],
         )));
   }
 
   Widget _buildDeviceList(BuildContext context) {
-      Column column = new Column();
+      List<Widget> widgets = List();
       for (var item in _deviceList) {
-
+        String pk = item.pk;
+        String dn = item.dn;
+        Row row = new Row(
+          children: <Widget>[
+            Expanded(
+              child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                new Container(
+                  child: Text("PK: $pk"),
+                ),
+                new Container(
+                  margin: EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    "DN: $dn", 
+                    overflow: TextOverflow.ellipsis,
+                    ),
+                ),
+                   
+              ],
+            )),
+            new FlatButton(
+              child: Text("绑定"), 
+              textColor: Colors.white,
+              color: Colors.lightBlue,
+              onPressed: () {
+                bind(item);
+              },
+            )
+          ],
+        );
+        widgets.add(row); 
+        widgets.add(Divider(color: Color(0x7f727272), height: 1.0,));
       }
-      return column;
+      return new Column(
+        children: widgets,
+      );
+  }
+
+  void bind(DeviceData deviceData) {
+    IRHTTP().post('/device/bind', data: {"pk": deviceData.pk, "dn": deviceData.dn});
   }
 }
