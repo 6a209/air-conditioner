@@ -14,6 +14,7 @@ class BindPageState extends State<BindPage> {
   RawDatagramSocket _socket;
   List<DeviceData> _deviceList;
   String _ssidName;
+  InternetAddress _deviceAddress;
 
   @override
   void initState() {
@@ -27,9 +28,12 @@ class BindPageState extends State<BindPage> {
     RawDatagramSocket.bind(address, 9876).then((udpSocket) {
       _socket = udpSocket;
       udpSocket.broadcastEnabled = true;
+
       udpSocket.listen((data) {
         print(data.toString());
         Datagram dg = udpSocket.receive();
+        _deviceAddress = dg.address;
+        print(_deviceAddress);
         if (dg != null) {
           print(dg.toString());
           var codec = new Utf8Codec();
@@ -150,7 +154,16 @@ class BindPageState extends State<BindPage> {
       );
   }
 
-  void bind(DeviceData deviceData) {
-    IRHTTP().post('/device/bind', data: {"pk": deviceData.pk, "dn": deviceData.dn});
+  void bind(DeviceData deviceData) async {
+    var response = await IRHTTP().post('/device/bind', data: {"pk": deviceData.pk, "dn": deviceData.dn});
+    print(response);
+    if (response.data['code'] == 200) {
+      sendBindSuccess();
+    } 
+  }
+
+  void sendBindSuccess() {
+    var codec = new Utf8Codec();
+    _socket.send(codec.encode("mobile_uid"), _deviceAddress, 9988);
   }
 }
