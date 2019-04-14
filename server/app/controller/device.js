@@ -13,7 +13,7 @@ class DeviceController extends Controller {
     const dn = ctx.request.body.dn
     const result = await this.service.device.createBind(uid, pk, dn)
     if (result) {
-      ctx.body = ctx.helper.successRes(200)
+      ctx.body = ctx.helper.successRes(200, result)
     } else {
       ctx.body = ctx.helper.failRes(500, 'dberror')
     } 
