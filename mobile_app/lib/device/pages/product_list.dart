@@ -53,9 +53,9 @@ class ProductListState extends State<ProductList> {
                     child: Text("绑定", style: TextStyle(color: Colors.blueAccent),),
                     onPressed: () {},
                   ),
-                  FlatButton(
-                    child: Text("编辑", style: TextStyle(color: Colors.blueAccent),),
-                    onPressed: () {},
+                  Icon(
+                    Icons.keyboard_arrow_right,
+                    color: Colors.grey,
                   )
                 ],
               ),
