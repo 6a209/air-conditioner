@@ -159,6 +159,8 @@ class BindPageState extends State<BindPage> {
     print(response);
     if (response.data['code'] == 200) {
       sendBindSuccess();
+      var deviceId = response.data['data']['deviceId'];
+      Navigator.of(context).pushNamed('/product', arguments: {"deviceId": deviceId});
     } 
   }
 
