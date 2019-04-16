@@ -5,6 +5,7 @@ import './index/pages/index.dart' as index;
 import './index/pages/my.dart' as my;
 import './device/pages/bind_device.dart';
 import './device/pages/product_list.dart';
+import './device/pages/product_detail.dart';
 import 'package:fluro/fluro.dart';
 import 'dart:io';
 
@@ -34,6 +35,8 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) =>
                 new ProductList(deviceId: argu['deviceId']));
+          } else if (settings.name == '/product/detail') {
+            return MaterialPageRoute(builder: (context) => new ProductDetail());
           }
         });
   }

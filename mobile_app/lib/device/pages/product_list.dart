@@ -40,10 +40,9 @@ class ProductListState extends State<ProductList> {
         itemCount: _productList == null ? 0 : _productList.data.length,
         itemBuilder: (BuildContext context, int index) {
           ProductItem item = _productList.data[index];
-          return new Container(
-            margin: EdgeInsets.only(top: 12.0),
+          Container container = new Container(
             child: new Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(16.0),
               child: Row(
                 children: <Widget>[
                   Expanded(
@@ -61,6 +60,9 @@ class ProductListState extends State<ProductList> {
               ),
             ),
           );
+          return GestureDetector(child: container, onTap: () {
+            Navigator.of(context).pushNamed('/product/detail');
+          },);
         },
         separatorBuilder: (BuildContext context, int index) {
           return Divider(
