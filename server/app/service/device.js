@@ -23,6 +23,15 @@ class DeviceService extends Service {
     await this.app.mysql.update('device', row)
   }
 
+  async getTopicByDevice(pk, dn) {
+    const device = await this.app.mysql.get('device', {productKey: pk, deviceName: dn})
+    if (device) {
+      const uid = await this.app.mysql.get('userdevice', {'deviceId': device.id}) 
+      const user = await this.app.mysql.get('user', {id: uid.uid})
+      return user.topic
+    }  
+  }
+
   async hasDevice(uid, deviceId) {
     const result = await this.app.mysql.get('userdevice', { uid, deviceId })
     return result
