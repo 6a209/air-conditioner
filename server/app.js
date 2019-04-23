@@ -1,6 +1,5 @@
 var mqtt = require('mqtt')
 
-
 console.log("connect!!!!!")
 let client = mqtt.connect('mqtt://192.168.4.92:1883', {
   clientId: "egg" + Date.now() 
@@ -8,7 +7,8 @@ let client = mqtt.connect('mqtt://192.168.4.92:1883', {
 
 class AppBootHook {
   constructor(app) {
-    this.app = app;
+    this.app = app
+    this.app.client = client
   }
 
   async serverDidReady() {
