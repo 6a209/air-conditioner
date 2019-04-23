@@ -28,7 +28,6 @@ class BindPageState extends State<BindPage> {
     RawDatagramSocket.bind(address, 9876).then((udpSocket) {
       _socket = udpSocket;
       udpSocket.broadcastEnabled = true;
-
       udpSocket.listen((data) {
         print(data.toString());
         Datagram dg = udpSocket.receive();
@@ -39,7 +38,6 @@ class BindPageState extends State<BindPage> {
           var codec = new Utf8Codec();
           String jsonData = codec.decode(dg.data);
           var broadcast = DeviceData.fromJSON(json.decode(jsonData));
-
           if (broadcast.code == 200) {
             addDevice(broadcast);
           }
@@ -67,9 +65,7 @@ class BindPageState extends State<BindPage> {
   @override
   void dispose() {
     super.dispose();
-    if (_socket != null) {
-      _socket.close();
-    }
+    _socket?.close();
   }
 
   @override

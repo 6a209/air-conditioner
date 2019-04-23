@@ -30,7 +30,4 @@ class IRHTTP {
     var response =  await dio.post(path, data: data); 
     return response;
   }
-
-  
-
 }
