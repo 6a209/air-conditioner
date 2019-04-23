@@ -53,14 +53,14 @@ void onMqttConnect(bool sessionPresent) {
   String topic = String("device/online");
   publishMsg(topic, PK + "&" + DN + "&" + SK);
 
-  topic = PK + "&" + DN + "&" +  String("device/sendCommand");
+  topic = String("device/sendCommand") + "/" + PK + "/" + DN;
   subscribe(topic);
 }
 
 void onMqttMessage(char* topic, char* payload, AsyncMqttClientMessageProperties properties,
                    size_t len, size_t index, size_t total) {
   String _topic = String(topic);                   
-  if (_topic.endsWith("device/sendCommand")) {
+  if (_topic.startsWith("device/sendCommand")) {
     Serial.print("sendIRCode");
     DynamicJsonDocument doc(2048);
     JsonObject root = doc.as<JsonObject>();
@@ -100,22 +100,23 @@ void setup() {
   }
 }
 
-void onReceiveIRData(uint16_t data[]) {
+void onReceiveIRData(uint16_t data[], int len) {
   Serial.println("onReceive ir data");
-  String topic = PK + "&" + DN + "&" + String("device/receiveIR");
+
+
+  String topic = String("device/receiveIR/") + PK + "/" + DN;
 
   char output[2048];
   DynamicJsonDocument doc(2048);
   JsonObject root = doc.to<JsonObject>();
   JsonArray dataArray = root.createNestedArray("data");
-  int length = sizeof(data) / sizeof(data[0]);
-  for (int i = 0; i < length; i ++) {
+  for (int i = 0; i < len; i ++) {
     dataArray.add(data[i]);
   }
   serializeJson(doc, output);
   String outStr = String(output);
   publishMsg(topic, outStr);
-  dumpRawData();
+  // dumpRawData();
 }
 
 void loop() {

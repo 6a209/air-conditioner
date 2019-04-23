@@ -23,13 +23,17 @@ void initIR() {
     irrecv.enableIRIn();
 }
 
-void receiveIRData(void (*onReceiveData)(uint16_t data[])){
+void receiveIRData(void (*onReceiveData)(uint16_t data[], int len)){
     if (irrecv.decode(&results)) {
+        Serial.println("results.rawlen");
+        Serial.println(results.rawlen);
         uint16_t rawData[results.rawlen];
         for (int i = 0; i < results.rawlen; i ++) {
             rawData[i] = results.rawbuf[i] * 2;
-        } 
-        onReceiveData(rawData);
+        }
+        int len = sizeof(rawData) / sizeof(rawData[0]);
+        Serial.println(len);
+        onReceiveData(rawData, len);
     }
 }
 
