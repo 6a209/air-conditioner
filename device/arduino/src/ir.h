@@ -10,7 +10,7 @@ void initIR();
 
 // void initIRSend();
 
-void receiveIRData(void (*onReceiveData)(uint16_t data[]));
+void receiveIRData(void (*onReceiveData)(uint16_t data[], int len));
 
 void dumpRawData();
 

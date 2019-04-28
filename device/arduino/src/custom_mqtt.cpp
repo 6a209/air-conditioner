@@ -95,9 +95,12 @@ void initMqtt(OnMqttConnect connect, OnMqttMessage onMsg) {
 }
 
 void publishMsg(String& topic, String& payload) {
-
+  
   if (mqttClient.connected()) {
+    Serial.print(topic.c_str());
     bool result = mqttClient.publish(topic.c_str(), 1, true, payload.c_str());
+  } else {
+    Serial.print("mqtt not connected");
   }
 }
 
