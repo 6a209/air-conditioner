@@ -53,11 +53,12 @@ class DeviceService extends Service {
 
   async getDetail(deviceId) {
     const result = await this.app.mysql.get('device', { 'id': deviceId })
-    const productId = result[0].productId
+    const productId = result.productId
     const commands = await this.app.mysql.select('command', { 'productId': productId })
     result['commands'] = commands
     return reslut
   }
+
 
   async createCommands({ productId, commands }) {
     // const conn = await app.mysql.beginTransaction(); 
@@ -88,7 +89,7 @@ class DeviceService extends Service {
     const command = await this.app.mysql.get('command', {id: commandId})
     const device = await this.app.mysql.get('command', {id: deviceId})
     const res = {}
-    res['data'] = command.irdata
+    res['data'] = JSON.parse(command.irdata)
     const message = JSON.stringify(res) 
     if (this.app.client.connected()) {
       this.app.client.publish(

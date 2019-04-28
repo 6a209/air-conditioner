@@ -27,6 +27,12 @@ class ProductService extends Service {
     const result = await this.app.mysql.get('userproduct', { uid, pid })
     return result
   }
+
+  async getProductDetail(productId) {
+    const commands = await this.app.mysql.select('command', { 'productId': productId })
+    result['commands'] = commands
+    return reslult
+  }
 }
 
 module.exports = ProductService 

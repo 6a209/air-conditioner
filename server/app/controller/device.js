@@ -86,6 +86,7 @@ class DeviceController extends Controller {
     const deviceId = ctx.request.body.deviceId 
     const productId = ctx.request.body.productId
     const commandName = ctx.request.body.commandName 
+    const commandId = ctx.request.body.commandId
     const result = await this.service.device.hasDevice(uid, deviceId)
     if (!result) {
       ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
@@ -107,6 +108,18 @@ class DeviceController extends Controller {
       ctx.body = ctx.helper.successRes(200, detail)
       return
     }
+  }
+
+  async updateCommand() {
+    const uid = this.getUid()
+    const productId = ctx.request.body.productId
+    const commands = ctx.request.body.commands 
+    let result = await this.service.product.hasProduct(uid, productId)
+    if (!result) {
+      ctx.body = ctx.helper.failRes(403, '你没有这个产品权限')
+      return
+    }
+
   }
 
   getUid() {

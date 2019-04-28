@@ -34,6 +34,13 @@ class ProductController extends Controller {
     ctx.body = ctx.helper.successRes(200)
   }
 
+  async productDetail() {
+    const { app, ctx } = this
+    const uid = this.getUid()
+    const productId = ctx.request.body.productId
+    await this.service.product.getProductDetail(productId)
+  }
+
 
   getUid() {
     let token = this.ctx.request.get('Authorization')
