@@ -3,6 +3,8 @@ import '../../base/base_data.dart' as basedata;
 class CommandsData extends basedata.BaseData{
   List<CommandData> commands;
 
+  CommandsData({this.commands});
+
   CommandsData.fromJSON(Map<String, dynamic> json) {
     this.code = json['code'];
     this.msg = json['msg'];

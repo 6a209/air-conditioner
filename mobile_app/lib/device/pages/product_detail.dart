@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import '../models/product_data.dart';
+import '../models/command_data.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import '../../base/http_utils.dart';
 
@@ -11,7 +12,8 @@ class ProductDetail extends StatefulWidget {
   final int pid;
   String name = "空调";
 
-  ProductDetail({Key key, this.pid, this.deviceId, this.name}) : super(key: key);
+  ProductDetail({Key key, this.pid, this.deviceId, this.name})
+      : super(key: key);
 
   @override
   ProductDetailState createState() => new ProductDetailState();
@@ -20,14 +22,15 @@ class ProductDetail extends StatefulWidget {
 class ProductDetailState extends State<ProductDetail> {
   ProductDetailData productDetailData;
   String currentCommandName = "";
+  CommandsData commandsData = new CommandsData(commands: List());
+  TextEditingController nameController = TextEditingController();
 
   final MqttClient client = MqttClient("192.168.4.92", '');
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    initData();
+
     client.onConnected = onMqttConnected;
     final MqttConnectMessage connMess = MqttConnectMessage()
         .withClientIdentifier('Mqtt_MyClientUniqueId')
@@ -39,6 +42,8 @@ class ProductDetailState extends State<ProductDetail> {
         .withWillQos(MqttQos.atLeastOnce);
     client.connectionMessage = connMess;
     client.connect();
+
+    initData();
   }
 
   @override
@@ -51,12 +56,31 @@ class ProductDetailState extends State<ProductDetail> {
       final MqttReceivedMessage recMess = c[0];
       if (recMess.topic == "user/6a209/study") {
         final MqttPublishMessage mpm = recMess.payload;
-        String pt =
+        String message =
             MqttPublishPayload.bytesToStringAsString(mpm.payload.message);
-        print(pt);
-        
+        String irData = jsonEncode(jsonDecode(message)['data']);
+        print(irData);
+        updateIRData(irData);
       }
     });
+  }
+
+  void updateIRData(String irdata) {
+    for (CommandData command in commandsData.commands) {
+      if (command.name == currentCommandName) {
+        command.irdata = irdata;
+      }
+    }
+    setState(() {
+      for (ProductGroup group in productDetailData.groups) {
+        for (ProductRow row in group.rows) {
+          if (row.name == currentCommandName) {
+            row.data = irdata;
+          }
+        }
+      }
+    });
+    cancelWait();
   }
 
   initData() async {
@@ -66,17 +90,46 @@ class ProductDetailState extends State<ProductDetail> {
     setState(() {
       this.productDetailData = ProductDetailData.fromJSON(listData);
     });
+    var response =
+        await IRHTTP().post('/product/detail', data: {"productId": widget.pid});
+    print("---->>>> res ");
+    print(response);
+    CommandsData commandsRes = CommandsData.fromJSON(response);
+    if (commandsRes.code == 200 && commandsRes.commands.length > 0) {
+      setState(() {
+        commandsData = commandsRes;
+        var map = Map();
+        for (CommandData command in commandsData.commands) {
+          map[command.name] = command.irdata;
+        }
+
+        for (ProductGroup group in productDetailData.groups) {
+          for (ProductRow row in group.rows) {
+            row.data = map[row.name];
+          }
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: new Text("空调"), backgroundColor: Colors.blueAccent,
+      appBar: AppBar(
+        title: new Text("产品详情"),
+        backgroundColor: Colors.blueAccent,
         actions: <Widget>[
-          FlatButton(child: Text("保存", style: TextStyle(color: Colors.white),), onPressed: () {
-            //  IRHTTP().post('/device/createCommand')
-          },)
-        ],),
+          FlatButton(
+            child: Text(
+              "保存",
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () {
+              //  IRHTTP().post('/device/createCommand')
+            },
+          )
+        ],
+      ),
       body: Container(
         padding: EdgeInsets.all(12.0),
         child: SingleChildScrollView(
@@ -88,6 +141,39 @@ class ProductDetailState extends State<ProductDetail> {
 
   List<Widget> buildDetailData() {
     List<Widget> listWidget = List();
+    nameController.text = "901 空调";
+    Column column = new Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text("产品名称",
+            style: TextStyle(
+                color: Color(0xff3c3c3c),
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold)),
+        Divider(
+          height: 1,
+          color: Color(0x7f727272),
+        ),
+        Container(
+            margin: EdgeInsets.only(top: 12.0),
+            child: TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(10.0),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+//            borderSide: BorderSide(color: Colors.red, width: 3.0, style: BorderStyle.solid)//没什么卵效果
+                    )))),
+      ],
+    );
+
+    Container nameContainer = new Container(
+      margin: EdgeInsets.only(top: 12.0),
+      child: column,
+    );
+    listWidget.add(nameContainer);
+
     if (null == productDetailData) {
       return listWidget;
     }
@@ -114,7 +200,12 @@ class ProductDetailState extends State<ProductDetail> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: columnChild,
       );
-      listWidget.add(column);
+      Container groupContainer = new Container(
+        margin: EdgeInsets.only(top: 18.0),
+        child: column,
+      );
+
+      listWidget.add(groupContainer);
     }
     return listWidget;
   }
@@ -173,18 +264,13 @@ class ProductDetailState extends State<ProductDetail> {
   }
 }
 
-
 class CountDownDialog extends StatefulWidget {
-
   var countDownFinish;
 
-  CountDownDialog({
-    Key key, this.countDownFinish
-  }) : super (key: key);
+  CountDownDialog({Key key, this.countDownFinish}) : super(key: key);
 
   @override
   CountDownState createState() => new CountDownState();
-
 }
 
 class CountDownState extends State<CountDownDialog> {
@@ -214,7 +300,6 @@ class CountDownState extends State<CountDownDialog> {
 
   @override
   Widget build(BuildContext context) {
-
     return new Container(
         alignment: Alignment.center,
         height: 72.0,
