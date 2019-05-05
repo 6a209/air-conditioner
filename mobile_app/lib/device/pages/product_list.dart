@@ -61,7 +61,7 @@ class ProductListState extends State<ProductList> {
             ),
           );
           return GestureDetector(child: container, onTap: () {
-            Navigator.of(context).pushNamed('/product/detail');
+            Navigator.of(context).pushNamed('/product/detail', arguments: {"pid": item.id, "name": item.name});
           },);
         },
         separatorBuilder: (BuildContext context, int index) {

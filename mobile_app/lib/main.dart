@@ -28,15 +28,15 @@ class MyApp extends StatelessWidget {
         color: Color(0xFFFF00BF),
         home: new MyTabs(),
         onGenerateRoute: (RouteSettings settings) {
+          Map argu = settings.arguments;
           if (settings.name == '/device/add') {
             return MaterialPageRoute(builder: (context) => BindPage());
           } else if (settings.name == '/product') {
-            Map argu = settings.arguments;
             return MaterialPageRoute(
               builder: (context) =>
                 new ProductList(deviceId: argu['deviceId']));
           } else if (settings.name == '/product/detail') {
-            return MaterialPageRoute(builder: (context) => new ProductDetail());
+            return MaterialPageRoute(builder: (context) => new ProductDetail(pid: argu['pid'], name: argu['name']));
           }
         });
   }

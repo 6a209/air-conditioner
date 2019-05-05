@@ -8,11 +8,10 @@ import 'package:mqtt_client/mqtt_client.dart';
 import '../../base/http_utils.dart';
 
 class ProductDetail extends StatefulWidget {
-  final int deviceId;
   final int pid;
   String name = "空调";
 
-  ProductDetail({Key key, this.pid, this.deviceId, this.name})
+  ProductDetail({Key key, this.pid, this.name})
       : super(key: key);
 
   @override
@@ -24,6 +23,7 @@ class ProductDetailState extends State<ProductDetail> {
   String currentCommandName = "";
   CommandsData commandsData = new CommandsData(commands: List());
   TextEditingController nameController = TextEditingController();
+  bool isUpdate = false;
 
   final MqttClient client = MqttClient("192.168.4.92", '');
 
@@ -90,18 +90,28 @@ class ProductDetailState extends State<ProductDetail> {
     setState(() {
       this.productDetailData = ProductDetailData.fromJSON(listData);
     });
-    var response =
+    CommandsData commandsRes = CommandsData();
+    try {
+      var response =
         await IRHTTP().post('/product/detail', data: {"productId": widget.pid});
-    print("---->>>> res ");
-    print(response);
-    CommandsData commandsRes = CommandsData.fromJSON(response);
+      print("prodcut/detail");
+      commandsRes = CommandsData.fromJson(response.data);
+    } catch (e){
+      print(e.toString());
+    }
+
+    print(commandsRes.code);
+    print(commandsRes.commands);
+
     if (commandsRes.code == 200 && commandsRes.commands.length > 0) {
+      isUpdate = true;
       setState(() {
-        commandsData = commandsRes;
+        this.commandsData = commandsRes;
         var map = Map();
         for (CommandData command in commandsData.commands) {
           map[command.name] = command.irdata;
         }
+        print(map);
 
         for (ProductGroup group in productDetailData.groups) {
           for (ProductRow row in group.rows) {
@@ -109,6 +119,13 @@ class ProductDetailState extends State<ProductDetail> {
           }
         }
       });
+    } else {
+        for (ProductGroup group in productDetailData.groups) {
+          for (ProductRow row in group.rows) {
+            this.commandsData.commands.add(CommandData(name: row.name, id: -1, irdata: ""));
+          }
+        }
+ 
     }
   }
 
@@ -125,7 +142,7 @@ class ProductDetailState extends State<ProductDetail> {
               style: TextStyle(color: Colors.white),
             ),
             onPressed: () {
-              //  IRHTTP().post('/device/createCommand')
+              saveIRData();
             },
           )
         ],
@@ -138,6 +155,23 @@ class ProductDetailState extends State<ProductDetail> {
       ),
     );
   }
+
+  saveIRData() async {
+    String path = '/product/commands/create'; 
+    if (isUpdate) {
+      path = '/product/commands/update';
+    }
+    print(widget.pid);
+    var commandMap = this.commandsData.toJson();
+    commandMap.remove("code");
+    commandMap.remove("msg");
+    var jsonStr = json.encode(commandMap);
+    print(jsonStr);
+    await IRHTTP().post(path, data: {
+      'productId': this.widget.pid,
+      'commands': commandMap['commands']
+    });
+  } 
 
   List<Widget> buildDetailData() {
     List<Widget> listWidget = List();
