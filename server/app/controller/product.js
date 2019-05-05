@@ -34,11 +34,53 @@ class ProductController extends Controller {
     ctx.body = ctx.helper.successRes(200)
   }
 
+  async createCommand() {
+    console.log("createCommand")
+    const uid = this.getUid()
+    const { app, ctx } = this
+    const productId = ctx.request.body.productId
+    const commands = ctx.request.body.commands 
+    let result = await this.service.product.hasProduct(uid, productId)
+    console.log(result)
+    if (!result) {
+      ctx.body = ctx.helper.failRes(403, '你没有这个产品权限')
+      return
+    }
+    result = await this.service.product.createCommands({productId, commands}) 
+    if (result) {
+      ctx.body = ctx.helper.successRes(200, result)
+      return
+    }
+  }
+
+  async updateCommand() {
+
+    console.log("updateCommand")
+    const { app, ctx } = this
+    const uid = this.getUid()
+    const productId = ctx.request.body.productId
+    const commands = ctx.request.body.commands 
+    let result = await this.service.product.hasProduct(uid, productId)
+    if (!result) {
+      ctx.body = ctx.helper.failRes(403, '你没有这个产品权限')
+      return
+    }
+    result = await this.service.product.updateCommands(productId, commands) 
+    if (result) {
+      ctx.body = ctx.helper.successRes(200, result)
+      return
+    }
+
+  }
+
   async productDetail() {
     const { app, ctx } = this
     const uid = this.getUid()
     const productId = ctx.request.body.productId
-    await this.service.product.getProductDetail(productId)
+    let result = await this.service.product.getProductDetail(productId)
+    if (result) {
+      ctx.body = ctx.helper.successRes(200, result)
+    }
   }
 
 

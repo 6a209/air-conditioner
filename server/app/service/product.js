@@ -28,10 +28,40 @@ class ProductService extends Service {
     return result
   }
 
+
+  async createCommands({ productId, commands }) {
+    // const conn = await app.mysql.beginTransaction(); 
+    console.log(productId)
+    console.log(commands)
+    console.log(typeof commands)
+    const rows = []
+    try {
+      for (let command of commands) {
+        let item = {}
+        item['name'] = command.name 
+        item['irdata'] = command.irdata
+        item['productId'] = productId
+        rows.push(item)
+      }
+      console.log(rows)
+      return await this.app.mysql.insert('command', rows)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async updateCommands({commands}) {
+    try {
+      console.log(commands)
+      return await this.app.mysql.updateRows('command', commands)
+    } catch(err) {
+      console.log(err)
+    }
+  }
+
   async getProductDetail(productId) {
     const commands = await this.app.mysql.select('command', { 'productId': productId })
-    result['commands'] = commands
-    return reslult
+    return commands
   }
 }
 

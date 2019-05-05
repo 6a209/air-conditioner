@@ -94,34 +94,6 @@ class DeviceController extends Controller {
     }
   }
 
-  async createCommand() {
-    const uid = this.getUid()
-    const productId = ctx.request.body.productId
-    const commands = ctx.request.body.commands 
-    let result = await this.service.product.hasProduct(uid, productId)
-    if (!result) {
-      ctx.body = ctx.helper.failRes(403, '你没有这个产品权限')
-      return
-    }
-    result = await this.service.device.createCommands(productId, commands) 
-    if (result) {
-      ctx.body = ctx.helper.successRes(200, detail)
-      return
-    }
-  }
-
-  async updateCommand() {
-    const uid = this.getUid()
-    const productId = ctx.request.body.productId
-    const commands = ctx.request.body.commands 
-    let result = await this.service.product.hasProduct(uid, productId)
-    if (!result) {
-      ctx.body = ctx.helper.failRes(403, '你没有这个产品权限')
-      return
-    }
-
-  }
-
   getUid() {
     let token = this.ctx.request.get('Authorization')
     token = token.replace(/Bearer /, '')
