@@ -60,12 +60,14 @@ class ProductController extends Controller {
     const uid = this.getUid()
     const productId = ctx.request.body.productId
     const commands = ctx.request.body.commands 
+    console.log(commands)
+    console.log(productId)
     let result = await this.service.product.hasProduct(uid, productId)
     if (!result) {
       ctx.body = ctx.helper.failRes(403, '你没有这个产品权限')
       return
     }
-    result = await this.service.product.updateCommands(productId, commands) 
+    result = await this.service.product.updateCommands({commands}) 
     if (result) {
       ctx.body = ctx.helper.successRes(200, result)
       return

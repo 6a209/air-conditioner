@@ -52,6 +52,7 @@ class ProductService extends Service {
 
   async updateCommands({commands}) {
     try {
+      console.log("commands")
       console.log(commands)
       return await this.app.mysql.updateRows('command', commands)
     } catch(err) {

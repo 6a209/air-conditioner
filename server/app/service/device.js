@@ -41,9 +41,12 @@ class DeviceService extends Service {
     console.log(pk)
     console.log(dn)
     const item = await this.app.mysql.get('device', { productKey: pk, deviceName: dn })
-    console.log(item)
+    const isBind = await this.app.mysql.get('userdevice', {uid, deviceId: item.id})
+    if (isBind) {
+      return {code: 500, msg: "设备已经被绑定过了"}
+    }
     const result = await this.app.mysql.insert('userdevice', { uid, deviceId: item.id })
-    return {uid, deviceId: item.id} 
+    return {code: 200, data: {uid, deviceId: item.id}}
   }
 
   async removeBind(uid, deviceId) {
@@ -60,30 +63,6 @@ class DeviceService extends Service {
   }
 
 
-  async createCommands({ productId, commands }) {
-    // const conn = await app.mysql.beginTransaction(); 
-    const rows = []
-    try {
-      for (let command of commands) {
-        let item = {}
-        item['name'] = command.name 
-        item['irdata'] = command.irdata
-        item['productId'] = productId
-        rows.push(item)
-      }
-      await this.app.mysql.insert('command', rows)
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  async updateCommands({commands}) {
-    try {
-      await this.app.mysql.updateRows('command', commands)
-    } catch(err) {
-      console.log(err)
-    }
-  }
 
   async excuteCommand({commandId, deviceId}) {
     const command = await this.app.mysql.get('command', {id: commandId})
