@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/base/toast.dart';
 import 'package:mobile_app/device/models/broadcast_data.dart';
 import 'package:connectivity/connectivity.dart';
 import '../../base/http_utils.dart';
@@ -157,7 +158,10 @@ class BindPageState extends State<BindPage> {
       sendBindSuccess();
       var deviceId = response.data['data']['deviceId'];
       Navigator.of(context).pushNamed('/product', arguments: {"deviceId": deviceId});
-    } 
+    } else {
+      print(response.data['msg']);
+      showToast(response.data['msg']); 
+    }
   }
 
   void sendBindSuccess() {
