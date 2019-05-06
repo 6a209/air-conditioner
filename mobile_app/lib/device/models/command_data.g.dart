@@ -8,7 +8,7 @@ part of 'command_data.dart';
 
 CommandsData _$CommandsDataFromJson(Map<String, dynamic> json) {
   return CommandsData(
-      commands: (json['data'] as List)
+      data: (json['data'] as List)
           ?.map((e) => e == null
               ? null
               : CommandData.fromJson(e as Map<String, dynamic>))
@@ -21,7 +21,7 @@ Map<String, dynamic> _$CommandsDataToJson(CommandsData instance) =>
     <String, dynamic>{
       'code': instance.code,
       'msg': instance.msg,
-      'data': instance.commands
+      'data': instance.data
     };
 
 CommandData _$CommandDataFromJson(Map<String, dynamic> json) {

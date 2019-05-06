@@ -6,6 +6,9 @@ import '../models/product_data.dart';
 import '../models/command_data.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import '../../base/http_utils.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import '../../base/toast.dart';
 
 class ProductDetail extends StatefulWidget {
   final int pid;
@@ -21,7 +24,7 @@ class ProductDetail extends StatefulWidget {
 class ProductDetailState extends State<ProductDetail> {
   ProductDetailData productDetailData;
   String currentCommandName = "";
-  CommandsData commandsData = new CommandsData(commands: List());
+  CommandsData commandsData = new CommandsData(data: List());
   TextEditingController nameController = TextEditingController();
   bool isUpdate = false;
 
@@ -66,7 +69,7 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   void updateIRData(String irdata) {
-    for (CommandData command in commandsData.commands) {
+    for (CommandData command in commandsData.data) {
       if (command.name == currentCommandName) {
         command.irdata = irdata;
       }
@@ -101,14 +104,13 @@ class ProductDetailState extends State<ProductDetail> {
     }
 
     print(commandsRes.code);
-    print(commandsRes.commands);
 
-    if (commandsRes.code == 200 && commandsRes.commands.length > 0) {
+    if (commandsRes.code == 200 && commandsRes.data.length > 0) {
       isUpdate = true;
       setState(() {
         this.commandsData = commandsRes;
         var map = Map();
-        for (CommandData command in commandsData.commands) {
+        for (CommandData command in commandsData.data) {
           map[command.name] = command.irdata;
         }
         print(map);
@@ -122,7 +124,7 @@ class ProductDetailState extends State<ProductDetail> {
     } else {
         for (ProductGroup group in productDetailData.groups) {
           for (ProductRow row in group.rows) {
-            this.commandsData.commands.add(CommandData(name: row.name, id: -1, irdata: ""));
+            this.commandsData.data.add(CommandData(name: row.name, id: -1, irdata: ""));
           }
         }
  
@@ -161,15 +163,17 @@ class ProductDetailState extends State<ProductDetail> {
     if (isUpdate) {
       path = '/product/commands/update';
     }
-    print(widget.pid);
     var commandMap = this.commandsData.toJson();
     commandMap.remove("code");
     commandMap.remove("msg");
-    var jsonStr = json.encode(commandMap);
-    print(jsonStr);
+    print(commandMap);
     await IRHTTP().post(path, data: {
       'productId': this.widget.pid,
-      'commands': commandMap['commands']
+      'commands': commandMap['data']
+    });
+    showToast("保存成功");
+    new Future.delayed(Duration(seconds: 2), () {
+      Navigator.pop(context);
     });
   } 
 

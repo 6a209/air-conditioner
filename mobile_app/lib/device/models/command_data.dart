@@ -5,10 +5,9 @@ part 'command_data.g.dart';
 
 @JsonSerializable()
 class CommandsData extends basedata.BaseData {
-  @JsonKey(name: 'data')
-  List<CommandData> commands;
+  List<CommandData> data;
 
-  CommandsData({this.commands});
+  CommandsData({this.data});
 
   factory CommandsData.fromJson(Map<String, dynamic> json) => _$CommandsDataFromJson(json); 
   Map<String, dynamic> toJson() => _$CommandsDataToJson(this);
