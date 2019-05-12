@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/device/models/device_data.dart';
+import '../bloc/device_detail_bloc.dart';
 
 class DeviceDetail extends StatefulWidget {
   final int deviceId;
@@ -13,49 +14,59 @@ class DeviceDetail extends StatefulWidget {
 }
 
 class DeviceDetailState extends State<DeviceDetail> {
-  DeviceDetailData deviceData;
-  String curTemperatuer;
+
+  @override
+  void initState() {
+    super.initState();
+    deviceDetailBloc.getDetail(widget.deviceId);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.name),
-        actions: <Widget>[
-          IconButton(
-            icon: new Icon(Icons.more_horiz),
-            onPressed: () {},
-          )
-        ],
-      ),
-      body: body(),
+    return StreamBuilder<DeviceDetailData>(
+      stream: deviceDetailBloc.detailSubject.stream,
+      builder: (context, AsyncSnapshot<DeviceDetailData> snapshot) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(widget.name),
+            actions: <Widget>[
+              IconButton(
+                icon: new Icon(Icons.more_horiz),
+                onPressed: () {},
+              )
+            ],
+          ),
+          body: body(snapshot.data),
+        );
+      },
     );
   }
 
-  Widget body() {
+  Widget body(DeviceDetailData deviceData) {
     List<Widget> list = List();
     list.add(Image.network(deviceData.detailImage));
     list.add(Container(
       margin: EdgeInsets.only(top: 64.0),
       child: Text(
-        curTemperatuer,
+        deviceData.curTemperatuer,
         style: TextStyle(fontSize: 36.0, color: Color(0xff3c3c3c)),
       ),
     ));
-    list.add(temperatureCtrl());
-    list.add(functionCtrl());
-    list.add(Container(alignment: Alignment.center,
+    list.add(temperatureCtrl(deviceData));
+    list.add(functionCtrl(deviceData));
+    list.add(Container(
+      alignment: Alignment.center,
       child: FlatButton(
-        child: Text("打开"), onPressed: () {
-        },
-      ), 
+        child: Text("打开"),
+        onPressed: () {},
+      ),
     ));
     return Column(
       children: list,
     );
   }
 
-  Widget temperatureCtrl() {
+  Widget temperatureCtrl(DeviceDetailData deviceData) {
     return Container(
       child: Row(
         children: <Widget>[
@@ -64,7 +75,7 @@ class DeviceDetailState extends State<DeviceDetail> {
             onPressed: () {},
           ),
           Slider(
-            value: double.parse(curTemperatuer),
+            value: double.parse(deviceData.curTemperatuer),
             onChanged: (newValue) {},
             min: 16.0,
             max: 32,
@@ -78,34 +89,38 @@ class DeviceDetailState extends State<DeviceDetail> {
     );
   }
 
-  Widget functionCtrl() {
+  Widget functionCtrl(DeviceDetailData deviceData) {
+    String hot = "制热";
+    String cold = "制冷";
+    String wind = "通风";
+    String wet = "除湿";
     return Container(
       child: Row(
         children: <Widget>[
           FlatButton(
-            child: Text("制热"),
+            child: Text(hot),
             onPressed: () {
-
+              deviceDetailBloc.execCommand(hot);
             },
           ),
           FlatButton(
-            child: Text("制冷"),
+            child: Text(cold),
             onPressed: () {
-
+              deviceDetailBloc.execCommand(cold);
             },
           ),
           FlatButton(
-            child: Text("通风"),
+            child: Text(wind),
             onPressed: () {
+              deviceDetailBloc.execCommand(wind);
             },
           ),
-
           FlatButton(
-            child: Text("除湿"),
+            child: Text(wet),
             onPressed: () {
+              deviceDetailBloc.execCommand(wet);
             },
           ),
-
         ],
       ),
     );

@@ -8,12 +8,18 @@ part 'device_data.g.dart';
 
 @JsonSerializable()
 class DeviceDetailData extends basedata.BaseData {
+  int id;
   String deviceName;
   String productKey; 
   String productId;
   String icon;
   String detailImage;
   String name;
+  int  curTemperature;
+  String curModeName;
+  // 0, clode
+  // 1, open
+  int curStatus;
 
   List<CommandData> commands;
 

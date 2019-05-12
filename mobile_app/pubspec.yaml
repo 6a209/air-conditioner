@@ -18,6 +18,8 @@ dependencies:
   fluro: "^1.4.0"
   mqtt_client: ^5.5.2
   fluttertoast: ^3.0.4
+  rxdart: ^0.22.0
+
   flutter:
     sdk: flutter
 
