@@ -1,25 +1,23 @@
 import 'dart:core';
 
-import '../../base/base_data.dart' as basedata;
 import 'package:json_annotation/json_annotation.dart';
-import '../models/command_data.dart';
+import 'package:mobile_app/device/models/command_data.dart';
 
 part 'device_data.g.dart';
 
 @JsonSerializable()
-class DeviceDetailData extends basedata.BaseData {
+class DeviceDetailData  {
   int id;
   String deviceName;
   String productKey; 
-  String productId;
+  int productId;
   String icon;
   String detailImage;
   String name;
-  int  curTemperature;
-  String curModeName;
-  // 0, clode
-  // 1, open
-  int curStatus;
+  int temperature = 18;
+  String mode;
+  // on off
+  String power;
 
   List<CommandData> commands;
 
@@ -30,6 +28,9 @@ class DeviceDetailData extends basedata.BaseData {
     this.icon,
     this.detailImage,
     this.name,
+    this.temperature = 18,
+    this.mode = 'code',
+    this.power = 'off',
     this.commands});
 
   factory DeviceDetailData.fromJson(Map<String, dynamic> json) => _$DeviceDetailDataFromJson(json); 

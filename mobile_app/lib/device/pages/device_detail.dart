@@ -1,60 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/base/base_page.dart';
 import 'package:mobile_app/device/models/device_data.dart';
 import '../bloc/device_detail_bloc.dart';
+import 'package:mobile_app/base/base_widget.dart';
 
-class DeviceDetail extends StatefulWidget {
+class DeviceDetailPage extends StatefulWidget {
   final int deviceId;
   final int pid;
   String name = "空调";
 
-  DeviceDetail({Key key, this.pid, this.deviceId, this.name}) : super(key: key);
+  DeviceDetailPage({Key key, this.pid, this.deviceId, this.name})
+      : super(key: key);
 
   @override
   DeviceDetailState createState() => new DeviceDetailState();
 }
 
-class DeviceDetailState extends State<DeviceDetail> {
+class DeviceDetailState extends State<DeviceDetailPage> {
+  bool showLoading = true;
 
   @override
   void initState() {
     super.initState();
     deviceDetailBloc.getDetail(widget.deviceId);
+    deviceDetailBloc.setPageStateChangeListener((BasePageState pageState) {
+      if (pageState == BasePageState.SHOW_LOADING) {
+        showLoading = true;
+      } else {
+        showLoading = false;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DeviceDetailData>(
-      stream: deviceDetailBloc.detailSubject.stream,
-      builder: (context, AsyncSnapshot<DeviceDetailData> snapshot) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(widget.name),
-            actions: <Widget>[
-              IconButton(
-                icon: new Icon(Icons.more_horiz),
-                onPressed: () {},
-              )
-            ],
-          ),
-          body: body(snapshot.data),
-        );
-      },
+    return Stack(
+      children: <Widget>[
+        StreamBuilder<DeviceDetailData>(
+            stream: deviceDetailBloc.detailSubject.stream,
+            builder: (context, AsyncSnapshot<DeviceDetailData> snapshot) {
+              if (snapshot.hasData) {
+                return _deviceDetail(snapshot.data);
+              } else {
+                return EmptyWidget();
+              }
+            }),
+        LoadingWidget(show: showLoading),
+      ],
+    );
+  }
+
+  Widget _deviceDetail(DeviceDetailData data) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.name),
+        actions: <Widget>[
+          IconButton(
+            icon: new Icon(Icons.more_horiz),
+            onPressed: () {},
+          )
+        ],
+      ),
+      body: body(data),
     );
   }
 
   Widget body(DeviceDetailData deviceData) {
+    final curTemperature = deviceData.temperature;
     List<Widget> list = List();
-    list.add(Image.network(deviceData.detailImage));
-    list.add(Container(
-      margin: EdgeInsets.only(top: 64.0),
-      child: Text(
-        deviceData.curTemperatuer,
-        style: TextStyle(fontSize: 36.0, color: Color(0xff3c3c3c)),
-      ),
+    print(deviceData.detailImage);
+    list.add(
+      Container(
+          margin: EdgeInsets.all(96),
+          child: Image.network(deviceData.detailImage, fit: BoxFit.contain)),
+    );
+    list.add(Expanded(
+      child: Container(
+          margin: EdgeInsets.only(bottom: 48.0),
+          alignment: Alignment.bottomCenter,
+          child: Text(
+            "$curTemperature°",
+            style: TextStyle(
+                fontSize: 48.0,
+                color: Color(0xff3c3c3c),
+                fontWeight: FontWeight.bold),
+          )),
     ));
     list.add(temperatureCtrl(deviceData));
     list.add(functionCtrl(deviceData));
     list.add(Container(
+      margin: EdgeInsets.only(bottom: 48.0),
       alignment: Alignment.center,
       child: FlatButton(
         child: Text("打开"),
@@ -67,22 +102,30 @@ class DeviceDetailState extends State<DeviceDetail> {
   }
 
   Widget temperatureCtrl(DeviceDetailData deviceData) {
+    deviceData.temperature = 18;
     return Container(
+      margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 48.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           IconButton(
             icon: Icon(Icons.remove),
-            onPressed: () {},
+            onPressed: () {
+              deviceDetailBloc.subTemperature();
+            },
           ),
+          Expanded(child: 
           Slider(
-            value: double.parse(deviceData.curTemperatuer),
+            value: deviceData.temperature.toDouble(),
             onChanged: (newValue) {},
             min: 16.0,
             max: 32,
-          ),
+          )),
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              deviceDetailBloc.addTemperature();
+            },
           ),
         ],
       ),
@@ -95,7 +138,9 @@ class DeviceDetailState extends State<DeviceDetail> {
     String wind = "通风";
     String wet = "除湿";
     return Container(
+      margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 48.0),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
           FlatButton(
             child: Text(hot),

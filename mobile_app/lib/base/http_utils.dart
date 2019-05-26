@@ -30,4 +30,44 @@ class IRHTTP {
     var response =  await dio.post(path, data: data); 
     return response;
   }
+
+  requestPost(String path, {data}) async {
+    HTTPResponse httpResponse = HTTPResponse();
+    try {
+      var response =  await dio.post(path, data: data); 
+      httpResponse.code = response.data['code'];
+      httpResponse.msg = response.data['msg'];
+      httpResponse.data = response.data['data'];
+      print("----------------------");
+      print(httpResponse.data);
+    } on DioError catch(e) {
+      print("dio error");
+      if(e.response != null) {
+        httpResponse.code = e.response.data['code'];    
+        httpResponse.msg = e.response.data['msg'];    
+      } else {
+        // net error
+        httpResponse.error = e;
+        if (e.type == DioErrorType.CONNECT_TIMEOUT || e.type == DioErrorType.RECEIVE_TIMEOUT) {
+          httpResponse.msg = "连接超时";
+        } else {
+          httpResponse.msg = "网络异常";
+        }
+      }
+    } on Error catch(e) {
+      print(e.toString());
+      httpResponse.error = e;
+      httpResponse.msg = "未知异常";
+    }
+    return httpResponse;
+  }
+}
+
+class HTTPResponse {
+  Error error; 
+  var data;
+  String msg;
+  int code;
+
+  HTTPResponse({this.error, this.data, this.msg, this.code});
 }

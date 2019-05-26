@@ -7,6 +7,7 @@ import './device/pages/bind_device.dart';
 import './device/pages/product_list.dart';
 import './device/pages/product_detail.dart';
 import 'package:fluro/fluro.dart';
+import './device/pages/device_detail.dart';
 import 'dart:io';
 
 void main() {
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         home: new MyTabs(),
         onGenerateRoute: (RouteSettings settings) {
           Map argu = settings.arguments;
+          print(argu);
           if (settings.name == '/device/add') {
             return MaterialPageRoute(builder: (context) => BindPage());
           } else if (settings.name == '/product') {
@@ -37,6 +39,9 @@ class MyApp extends StatelessWidget {
                 new ProductList(deviceId: argu['deviceId']));
           } else if (settings.name == '/product/detail') {
             return MaterialPageRoute(builder: (context) => new ProductDetail(pid: argu['pid'], name: argu['name']));
+          } else if (settings.name == '/device/detail') {
+            return MaterialPageRoute(builder: (context) => 
+              new DeviceDetailPage(pid: argu['pid'], deviceId: argu['deviceId'], name: argu['name'],));
           }
         });
   }
