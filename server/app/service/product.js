@@ -39,6 +39,7 @@ class ProductService extends Service {
       for (let command of commands) {
         let item = {}
         item['name'] = command.name 
+        item['value'] = command.value 
         item['irdata'] = command.irdata
         item['productId'] = productId
         rows.push(item)
