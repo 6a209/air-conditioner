@@ -14,7 +14,7 @@ class DeviceDetailData  {
   String icon;
   String detailImage;
   String name;
-  int temperature = 18;
+  int temperature;
   String mode;
   // on off
   String power;
@@ -28,10 +28,26 @@ class DeviceDetailData  {
     this.icon,
     this.detailImage,
     this.name,
-    this.temperature = 18,
+    temperature = 18,
     this.mode = 'code',
     this.power = 'off',
-    this.commands});
+    this.commands}) {
+
+      if (temperature == null) {
+        temperature = 18;
+      }
+      if (mode == null) {
+        mode = 'code';
+      }
+      if (power == null) {
+        power = 'off';
+      }
+      print("t-->>>>>>>>>>>");
+      print(temperature);
+      this.temperature = temperature;
+      this.mode = mode;
+      this.power = power;
+    }
 
   factory DeviceDetailData.fromJson(Map<String, dynamic> json) => _$DeviceDetailDataFromJson(json); 
   Map<String, dynamic> toJson() => _$DeviceDetailDataToJson(this);

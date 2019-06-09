@@ -17,10 +17,12 @@ class MyPageState extends State<MyPage> {
     super.initState();
     _listData = new List();
 
+    var product = MyActionData(text: "我的产品", url: "xxxx");  
     var form = MyActionData(text: "官方论坛", url: "xxx");
     var feedback = MyActionData(text: "反馈", url: "xxx");
     var about = MyActionData(text: "关于", url: "xxxx");
 
+    _listData.add(product);
     _listData.add(form);
     _listData.add(feedback);
     _listData.add(about);
@@ -78,7 +80,8 @@ class MyPageState extends State<MyPage> {
 
     for (var i = 0; i < _listData.length; i++) {
       var itemData = _listData[i];
-      var itemWidget = new Container(
+
+      var container = new Container(
         constraints: BoxConstraints.expand(height: 48),
         alignment: AlignmentDirectional.centerStart,
         decoration: BoxDecoration(
@@ -90,14 +93,12 @@ class MyPageState extends State<MyPage> {
             ) 
           )
         ),
-        child: GestureDetector(
-          onTap: () {
-            // to url
-          },
-          child: Text(itemData.text, style: TextStyle(fontSize: 16.0, color: Color(0xff727272)),),
-        ),
+        child: Text(itemData.text, style: TextStyle(fontSize: 16.0, color: Color(0xff727272)),),
       ); 
 
+      var itemWidget = GestureDetector(onTap: () {
+             Navigator.of(context).pushNamed('/product', arguments: {"deviceId": -1}); 
+      }, child: container,); 
 
       listWidget.add(itemWidget);
     }

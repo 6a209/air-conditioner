@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/base/base_page.dart';
+
 import 'package:mobile_app/device/models/device_data.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import '../bloc/device_detail_bloc.dart';
 import 'package:mobile_app/base/base_widget.dart';
 
@@ -22,7 +26,8 @@ class DeviceDetailState extends State<DeviceDetailPage> {
   @override
   void initState() {
     super.initState();
-    deviceDetailBloc.getDetail(widget.deviceId);
+    
+    deviceDetailBloc.init(widget.deviceId);
     deviceDetailBloc.setPageStateChangeListener((BasePageState pageState) {
       if (pageState == BasePageState.SHOW_LOADING) {
         showLoading = true;
@@ -30,6 +35,13 @@ class DeviceDetailState extends State<DeviceDetailPage> {
         showLoading = false;
       }
     });
+
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    deviceDetailBloc.dispose();
   }
 
   @override
@@ -39,13 +51,23 @@ class DeviceDetailState extends State<DeviceDetailPage> {
         StreamBuilder<DeviceDetailData>(
             stream: deviceDetailBloc.detailSubject.stream,
             builder: (context, AsyncSnapshot<DeviceDetailData> snapshot) {
+
               if (snapshot.hasData) {
                 return _deviceDetail(snapshot.data);
               } else {
                 return EmptyWidget();
               }
             }),
-        LoadingWidget(show: showLoading),
+        StreamBuilder<bool>(
+          stream: deviceDetailBloc.loadingSubject.stream,
+          initialData: false,
+          builder: (context, snapshot){
+            print("loading");
+            print(snapshot.data);
+            // return LoadingWidget(show: true);
+            return LoadingWidget(show: snapshot.data);
+          }
+        ),
       ],
     );
   }
@@ -67,6 +89,8 @@ class DeviceDetailState extends State<DeviceDetailPage> {
 
   Widget body(DeviceDetailData deviceData) {
     final curTemperature = deviceData.temperature;
+    print("curTemperature");
+    print(curTemperature);
     List<Widget> list = List();
     print(deviceData.detailImage);
     list.add(
@@ -102,7 +126,6 @@ class DeviceDetailState extends State<DeviceDetailPage> {
   }
 
   Widget temperatureCtrl(DeviceDetailData deviceData) {
-    deviceData.temperature = 18;
     return Container(
       margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 48.0),
       child: Row(

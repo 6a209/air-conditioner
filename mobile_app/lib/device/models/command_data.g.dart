@@ -28,6 +28,7 @@ CommandData _$CommandDataFromJson(Map<String, dynamic> json) {
   return CommandData(
       id: json['id'] as int,
       name: json['name'] as String,
+      value: json['value'] as String,
       irdata: json['irdata'] as String);
 }
 
@@ -35,5 +36,6 @@ Map<String, dynamic> _$CommandDataToJson(CommandData instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
+      'value': instance.value,
       'irdata': instance.irdata
     };

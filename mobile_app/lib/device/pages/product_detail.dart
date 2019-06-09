@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_app/base/mqtt_utils.dart';
 import 'dart:convert';
 import '../models/product_data.dart';
 import '../models/command_data.dart';
@@ -28,24 +29,11 @@ class ProductDetailState extends State<ProductDetail> {
   TextEditingController nameController = TextEditingController();
   bool isUpdate = false;
 
-  final MqttClient client = MqttClient("192.168.4.92", '');
+  // final MqttClient client = MqttClient("192.168.4.92", '');
 
   @override
   void initState() {
     super.initState();
-
-    client.onConnected = onMqttConnected;
-    final MqttConnectMessage connMess = MqttConnectMessage()
-        .withClientIdentifier('Mqtt_MyClientUniqueId')
-        .keepAliveFor(20) // Must agree with the keep alive set above or not set
-        .withWillTopic(
-            'willtopic') // If you set this you must set a will message
-        .withWillMessage('My Will message')
-        .startClean() // Non persistent session for testing
-        .withWillQos(MqttQos.atLeastOnce);
-    client.connectionMessage = connMess;
-    client.connect();
-
     initData();
   }
 
@@ -55,17 +43,26 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   void onMqttConnected() {
-    client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-      final MqttReceivedMessage recMess = c[0];
-      if (recMess.topic == "user/6a209/study") {
-        final MqttPublishMessage mpm = recMess.payload;
-        String message =
-            MqttPublishPayload.bytesToStringAsString(mpm.payload.message);
-        String irData = jsonEncode(jsonDecode(message)['data']);
-        print(irData);
-        updateIRData(irData);
+    MqttManager.instance().messageSubject.where((MqttData data){
+      if (data.topic == "user/6a209/study") {
+        return true;
       }
+    }).listen((MqttData data){
+      String irData = jsonEncode(jsonDecode(data.message)['data']);
+      updateIRData(irData);
     });
+    // client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+    //   final MqttReceivedMessage recMess = c[0];
+    //   if (recMess.topic == "user/6a209/study") {
+    //     final MqttPublishMessage mpm = recMess.payload;
+    //     String message =
+    //         MqttPublishPayload.bytesToStringAsString(mpm.payload.message);
+    //     String irData = jsonEncode(jsonDecode(message)['data']);
+    //     print(irData);
+    //     updateIRData(irData);
+    //   }
+    // });
+
   }
 
   void updateIRData(String irdata) {
@@ -272,7 +269,7 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   waitDialog() {
-    client.subscribe("user/6a209/study", MqttQos.exactlyOnce);
+    MqttManager.instance().subscribe("user/6a209/study", MqttQos.exactlyOnce);
 
     showDialog(
         context: context,
@@ -298,7 +295,7 @@ class ProductDetailState extends State<ProductDetail> {
 
   void cancelWait() {
     Navigator.pop(context);
-    client.unsubscribe("user/6a209/study");
+    MqttManager.instance().unsubscribe("user/6a209/study");
   }
 }
 

@@ -14,15 +14,15 @@ DeviceDetailData _$DeviceDetailDataFromJson(Map<String, dynamic> json) {
       icon: json['icon'] as String,
       detailImage: json['detailImage'] as String,
       name: json['name'] as String,
+      temperature: json['temperature'],
+      mode: json['mode'] as String,
+      power: json['power'] as String,
       commands: (json['commands'] as List)
           ?.map((e) => e == null
               ? null
               : CommandData.fromJson(e as Map<String, dynamic>))
           ?.toList())
-    ..id = json['id'] as int
-    ..temperature = json['temperature'] as int
-    ..mode = json['mode'] as String
-    ..power = json['power'] as String;
+    ..id = json['id'] as int;
 }
 
 Map<String, dynamic> _$DeviceDetailDataToJson(DeviceDetailData instance) =>

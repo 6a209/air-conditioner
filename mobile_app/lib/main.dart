@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_app/base/mqtt_utils.dart';
 import './index/pages/index.dart' as index;
 import './index/pages/my.dart' as my;
 import './device/pages/bind_device.dart';
@@ -13,6 +14,8 @@ import 'dart:io';
 void main() {
   final router = Router();
   Object a;
+
+  MqttManager.instance().init();
   runApp(MyApp());
   // initialRoute: '/',
   // routes: <String, WidgetBuilder> {

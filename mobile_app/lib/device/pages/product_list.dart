@@ -48,10 +48,12 @@ class ProductListState extends State<ProductList> {
                   Expanded(
                     child: Text(item.name),
                   ),
-                  FlatButton(
-                    child: Text("绑定", style: TextStyle(color: Colors.blueAccent),),
-                    onPressed: () {},
-                  ),
+                  Offstage(
+                    offstage: widget.deviceId == -1,
+                    child: FlatButton(
+                      child: Text("绑定", style: TextStyle(color: Colors.blueAccent),),
+                      onPressed: () {},
+                  )),
                   Icon(
                     Icons.keyboard_arrow_right,
                     color: Colors.grey,

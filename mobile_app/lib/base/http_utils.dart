@@ -33,18 +33,21 @@ class IRHTTP {
 
   requestPost(String path, {data}) async {
     HTTPResponse httpResponse = HTTPResponse();
+    print('path is => $path');
     try {
       var response =  await dio.post(path, data: data); 
       httpResponse.code = response.data['code'];
       httpResponse.msg = response.data['msg'];
       httpResponse.data = response.data['data'];
       print("----------------------");
-      print(httpResponse.data);
+      print(httpResponse.code);
+      print(httpResponse.msg);
     } on DioError catch(e) {
       print("dio error");
+      print(e);
       if(e.response != null) {
-        httpResponse.code = e.response.data['code'];    
-        httpResponse.msg = e.response.data['msg'];    
+        httpResponse.code = 500;    
+        httpResponse.msg = "server error";    
       } else {
         // net error
         httpResponse.error = e;

@@ -11,7 +11,7 @@ class LoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: FractionalOffset.center,
-      child: Offstage(offstage: show, child: CircularProgressIndicator(),),
+      child: Offstage(offstage: !show, child: CircularProgressIndicator(),),
     );
   }
 }

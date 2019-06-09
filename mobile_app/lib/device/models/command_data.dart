@@ -17,9 +17,10 @@ class CommandsData extends basedata.BaseData {
 class CommandData {
   int id = -1;
   String name;
+  String value;
   String irdata = "";
 
-  CommandData({this.id, this.name, this.irdata});
+  CommandData({this.id, this.name, this.value, this.irdata});
   factory CommandData.fromJson(Map<String, dynamic> json) => _$CommandDataFromJson(json); 
   Map<String, dynamic> toJson() => _$CommandDataToJson(this);
 }
