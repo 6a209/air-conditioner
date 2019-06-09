@@ -37,8 +37,7 @@ void receiveIRData(void (*onReceiveData)(uint16_t data[], int len)){
     }
 }
 
-void sendRawData(uint16_t data[]) {
-    int len = sizeof(data) / sizeof(data[0]);
+void sendRawData(uint16_t data[], int len) {
     irsend.sendRaw(data, len, 38);
 }
 
