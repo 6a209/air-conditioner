@@ -1,37 +1,38 @@
 var mqtt = require('mqtt')
 
 console.log("connect!!!!!")
-let client = mqtt.connect('mqtt://192.168.4.92:1883', {
-  clientId: "egg" + Date.now()
-})
 
 class AppBootHook {
   constructor(app) {
     this.app = app
-    this.app.client = client
+    this.client = mqtt.connect('mqtt://192.168.4.92:1883', {
+      clientId: "egg" + Date.now()
+    })
+
+    this.app.client = this.client
   }
 
   async serverDidReady() {
     console.log('serverDidReady')
     // init mqtt 
     this.subscribeTopic()
-    client.on('connect', () => {
+    this.client.on('connect', () => {
       console.log('connect')
       this.subscribeTopic()
     })
-    client.on('close', () => {
+    this.client.on('close', () => {
       console.log('close')
     })
-    client.on('error', (error) => {
+    this.client.on('error', (error) => {
       console.log('error')
       console.log(error)
     })
-    client.on('reconnect', () => {
+    this.client.on('reconnect', () => {
       console.log('reconnect')
     })
 
     let that = this
-    client.on('message', (topic, message) => {
+    this.client.on('message', (topic, message) => {
       console.log('message')
       console.log(topic)
       console.log(message)
@@ -49,12 +50,14 @@ class AppBootHook {
       } else if (topic.startsWith('device/status')) {
         // device update status 
         let topicStr = topic.replace('device/status/', '')
-        let {pk, dn} = getDeviceInfo(topicStr)
+        let {pk, dn} = this.getDeviceInfo(topicStr)
         const msgObj = JSON.parse(message)
-        const key  = msgObj['name']
-        const status = {key: msgObj['value']}
+        const name  = msgObj['name']
+        const status = {} 
+        status[name] = msgObj['value']
+        console.log(status)
         that.updateStatus(pk, dn, status)
-        that.publishStatus2App(pk, dn, JSON.stringify(status))   
+        that.publishStatus2App(pk, dn, message)   
       }
     })
   }
@@ -79,41 +82,45 @@ class AppBootHook {
     const ctx = await this.app.createAnonymousContext()
     const topic = await ctx.service.device.getTopicByDevice(pk, dn)
     if (topic) {
-      client.publish('user/' + topic + '/study', message)
+      this.client.publish('user/' + topic + '/study', message)
     }
   }
 
   async publishStatus2App(pk, dn, message) {
+    console.log("publishStatus2App")
+    console.log(message)
     const ctx = await this.app.createAnonymousContext()
-    const topic = await ctx.service.device.getTopicByDevice(pk, dn)
+    let topic = await ctx.service.device.getTopicByDevice(pk, dn)
+    topic = 'user/' + topic + '/property/update'; 
+    console.log(topic)
     if (topic) {
-      client.publish('user/' + topic + 'property/update', message)
+      this.client.publish(topic, message)
     }
   }
 
   subscribeTopic() {
     // console.log("subscribeTopic")
-    client.subscribe('device/online/+/+', (err) => {
+    this.client.subscribe('device/online/+/+', (err) => {
       //  
       if (err) {
         console.log(err)
         // client.publish('presence', 'Hello mqtt')
       }
     })
-    client.subscribe('device/receiveIR/+/+', (err) => {
+    this.client.subscribe('device/receiveIR/+/+', (err) => {
       // receive device ir code 
       if (err) {
         console.log(err)
       }
     })
 
-    client.subscribe('device/status/update', (err) => {
+    this.client.subscribe('device/status/+/+', (err) => {
       if (err) {
         console.log(err)
       }
     })
 
-    client.subscribe('')
+    // client.subscribe('')
 
   }
 
