@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:mobile_app/base/toast.dart';
 import 'package:mobile_app/device/models/broadcast_data.dart';
 import 'package:connectivity/connectivity.dart';
 import '../../base/http_utils.dart';
@@ -154,14 +155,16 @@ class BindPageState extends State<BindPage> {
     var response = await IRHTTP().post('/device/bind', data: {"pk": deviceData.pk, "dn": deviceData.dn});
     print(response);
     if (response.data['code'] == 200) {
-      sendBindSuccess();
+      // sendBindSuccess();
       var deviceId = response.data['data']['deviceId'];
       Navigator.of(context).pushNamed('/product', arguments: {"deviceId": deviceId});
-    } 
+    } else {
+      showToast(response.data['msg']); 
+    }
   }
 
-  void sendBindSuccess() {
-    var codec = new Utf8Codec();
-    _socket.send(codec.encode("mobile_uid"), _deviceAddress, 9988);
-  }
+  // void sendBindSuccess() {
+  //   var codec = new Utf8Codec();
+  //   _socket.send(codec.encode("mobile_uid"), _deviceAddress, 9988);
+  // }
 }

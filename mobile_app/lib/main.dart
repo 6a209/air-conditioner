@@ -1,17 +1,21 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_app/base/mqtt_utils.dart';
 import './index/pages/index.dart' as index;
 import './index/pages/my.dart' as my;
 import './device/pages/bind_device.dart';
 import './device/pages/product_list.dart';
 import './device/pages/product_detail.dart';
 import 'package:fluro/fluro.dart';
+import './device/pages/device_detail.dart';
 import 'dart:io';
 
 void main() {
   final router = Router();
   Object a;
+
+  MqttManager.instance().init();
   runApp(MyApp());
   // initialRoute: '/',
   // routes: <String, WidgetBuilder> {
@@ -28,15 +32,19 @@ class MyApp extends StatelessWidget {
         color: Color(0xFFFF00BF),
         home: new MyTabs(),
         onGenerateRoute: (RouteSettings settings) {
+          Map argu = settings.arguments;
+          print(argu);
           if (settings.name == '/device/add') {
             return MaterialPageRoute(builder: (context) => BindPage());
           } else if (settings.name == '/product') {
-            Map argu = settings.arguments;
             return MaterialPageRoute(
               builder: (context) =>
                 new ProductList(deviceId: argu['deviceId']));
           } else if (settings.name == '/product/detail') {
-            return MaterialPageRoute(builder: (context) => new ProductDetail());
+            return MaterialPageRoute(builder: (context) => new ProductDetail(pid: argu['pid'], name: argu['name']));
+          } else if (settings.name == '/device/detail') {
+            return MaterialPageRoute(builder: (context) => 
+              new DeviceDetailPage(pid: argu['pid'], deviceId: argu['deviceId'], name: argu['name'],));
           }
         });
   }

@@ -9,7 +9,7 @@ class IndexListData extends basedata.BaseData {
     this.code = json['code'];
     this.msg = json['msg'];
     this.data = (json['data'] as List).map((item) {
-      return IndexItem(productId: item['productId'], id: item['id'], 
+      return IndexItem(productId: item['productId'], deviceId: item['deviceId'], 
         name: item['name'], status: item['status'], icon: item['icon']);  
     }).toList();
   }
@@ -17,14 +17,14 @@ class IndexListData extends basedata.BaseData {
 
 class IndexItem {
   int productId;
-  int id;
+  int deviceId;
   String name;
   int status;
   String icon;
 
   IndexItem({
     this.productId,
-    this.id,
+    this.deviceId,
     this.name,
     this.status,
     this.icon

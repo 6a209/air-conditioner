@@ -4,15 +4,23 @@
 
 1. 远程控制空调
 
-2. 监控当前房间的温湿度
+2. 监控当前空调环境的温湿度
 
-3. Android App
+### 独立开发部署
 
-4. iOS App
+1. App （Android/iOS)
 
-5. 接入阿里云IoT平台
+2. Server (Nodejs)
 
-6. 提供全套源码
+3. Device (Arduino)
+
+### HomeAssistant
+
+
+### 阿里云IoT
+
+
+### 天猫精灵
 
 ---
 
@@ -24,27 +32,19 @@
 
 * 红外收发开发板  
 
-
-
 #### 红外功能
 
 使用库 IRremoteESP8266
 
 https://github.com/markszabo/IRremoteESP8266
 
-
-
 ##### 红外接收
 
-接收到红外code => mqtt 到手机端 => 手机端和功能键绑定 发送到云端
-
-
+接收到红外code => 局域网广播 => 手机端和功能键绑定 发送到云端
 
 ##### 红外发送
 
 手机端触发命令 => 云端获取命令转换成红外code => mqtt 下发到设备端 发送
-
-
 
 #### 配网功能
 
@@ -52,35 +52,23 @@ https://github.com/markszabo/IRremoteESP8266
 
 https://github.com/tzapu/WiFiManager
 
-
-
 ##### 配网
 
 首次上电通过指定AP接入
-
-
 
 ##### 重置功能
 
 长按nodemcu上的rst按键，可以清除之前存储的wifi ssid 和 密码使其可以重新进行AP配网
 
-
-
 ##### 本地发现
 
 未绑定前可以通过局域网UDP广播和本地手机通讯，使手机app上可以显示未绑定设备
 
-
-
 #### 阿里云
-
-
 
 ##### 三元组烧写
 
 `暂时`先考虑写死
-
-
 
 ##### MQTT连接
 
@@ -88,9 +76,13 @@ AsyncMqttClient
 
 https://github.com/marvinroger/async-mqtt-client
 
+
+
+MQTT Client ID  md5(PK+DN) 16位
+
+
+
 #### 空调属性
-
-
 
 ### 客户端
 
@@ -120,7 +112,7 @@ Flutter 进行跨平台开发
 
 #### 我的页面
 
-   1. 显示用户名 （微信名
+1. 显示用户名 （微信名
 
 2. 显示用户头像 （ 微信头像
 

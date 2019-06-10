@@ -17,6 +17,8 @@ dependencies:
   dio: ^2.1.0
   fluro: "^1.4.0"
   mqtt_client: ^5.5.2
+  fluttertoast: ^3.0.4
+  rxdart: ^0.22.0
 
   flutter:
     sdk: flutter
@@ -28,6 +30,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^1.0.0
+  json_serializable: ^2.0.0
 
 
 # For information on the generic Dart part of this file, see the

@@ -11,6 +11,8 @@ OnMqttConnect onConnect;
 OnMqttMessage onMessage; 
 
 
+
+
 void _onMqttConnect(bool sessionPresent) {
   Serial.println("Connected to MQTT.");
   Serial.print("Session present: ");

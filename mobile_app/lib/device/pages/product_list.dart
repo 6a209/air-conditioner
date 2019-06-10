@@ -48,10 +48,12 @@ class ProductListState extends State<ProductList> {
                   Expanded(
                     child: Text(item.name),
                   ),
-                  FlatButton(
-                    child: Text("绑定", style: TextStyle(color: Colors.blueAccent),),
-                    onPressed: () {},
-                  ),
+                  Offstage(
+                    offstage: widget.deviceId == -1,
+                    child: FlatButton(
+                      child: Text("绑定", style: TextStyle(color: Colors.blueAccent),),
+                      onPressed: () {},
+                  )),
                   Icon(
                     Icons.keyboard_arrow_right,
                     color: Colors.grey,
@@ -61,7 +63,7 @@ class ProductListState extends State<ProductList> {
             ),
           );
           return GestureDetector(child: container, onTap: () {
-            Navigator.of(context).pushNamed('/product/detail');
+            Navigator.of(context).pushNamed('/product/detail', arguments: {"pid": item.id, "name": item.name});
           },);
         },
         separatorBuilder: (BuildContext context, int index) {

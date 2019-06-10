@@ -14,6 +14,6 @@ void receiveIRData(void (*onReceiveData)(uint16_t data[], int len));
 
 void dumpRawData();
 
-void sendRawData(uint16_t rawData[]);
+void sendRawData(uint16_t rawData[], int len);
 
 #endif

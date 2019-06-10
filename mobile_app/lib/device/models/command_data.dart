@@ -1,23 +1,26 @@
 import '../../base/base_data.dart' as basedata;
+import 'package:json_annotation/json_annotation.dart';
 
-class CommandsData extends basedata.BaseData{
-  List<CommandData> commands;
+part 'command_data.g.dart';
 
-  CommandsData({this.commands});
+@JsonSerializable()
+class CommandsData extends basedata.BaseData {
+  List<CommandData> data;
 
-  CommandsData.fromJSON(Map<String, dynamic> json) {
-    this.code = json['code'];
-    this.msg = json['msg'];
-    this.commands = (json['data'] as List).map((item) {
-      return CommandData(id: item.id, name: item.name, irdata: item.irdata);
-    }).toList();
-  }
+  CommandsData({this.data});
+
+  factory CommandsData.fromJson(Map<String, dynamic> json) => _$CommandsDataFromJson(json); 
+  Map<String, dynamic> toJson() => _$CommandsDataToJson(this);
 }
 
+@JsonSerializable()
 class CommandData {
-  int id;
-  String name;  
-  String irdata;
+  int id = -1;
+  String name;
+  String value;
+  String irdata = "";
 
-  CommandData({this.id, this.name, this.irdata});
+  CommandData({this.id, this.name, this.value, this.irdata});
+  factory CommandData.fromJson(Map<String, dynamic> json) => _$CommandDataFromJson(json); 
+  Map<String, dynamic> toJson() => _$CommandDataToJson(this);
 }

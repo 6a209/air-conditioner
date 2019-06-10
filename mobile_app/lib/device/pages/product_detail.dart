@@ -1,18 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_app/base/mqtt_utils.dart';
 import 'dart:convert';
 import '../models/product_data.dart';
 import '../models/command_data.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import '../../base/http_utils.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+import '../../base/toast.dart';
 
 class ProductDetail extends StatefulWidget {
-  final int deviceId;
   final int pid;
   String name = "空调";
 
-  ProductDetail({Key key, this.pid, this.deviceId, this.name})
+  ProductDetail({Key key, this.pid, this.name})
       : super(key: key);
 
   @override
@@ -22,27 +25,15 @@ class ProductDetail extends StatefulWidget {
 class ProductDetailState extends State<ProductDetail> {
   ProductDetailData productDetailData;
   String currentCommandName = "";
-  CommandsData commandsData = new CommandsData(commands: List());
+  CommandsData commandsData = new CommandsData(data: List());
   TextEditingController nameController = TextEditingController();
+  bool isUpdate = false;
 
-  final MqttClient client = MqttClient("192.168.4.92", '');
+  // final MqttClient client = MqttClient("192.168.4.92", '');
 
   @override
   void initState() {
     super.initState();
-
-    client.onConnected = onMqttConnected;
-    final MqttConnectMessage connMess = MqttConnectMessage()
-        .withClientIdentifier('Mqtt_MyClientUniqueId')
-        .keepAliveFor(20) // Must agree with the keep alive set above or not set
-        .withWillTopic(
-            'willtopic') // If you set this you must set a will message
-        .withWillMessage('My Will message')
-        .startClean() // Non persistent session for testing
-        .withWillQos(MqttQos.atLeastOnce);
-    client.connectionMessage = connMess;
-    client.connect();
-
     initData();
   }
 
@@ -52,21 +43,30 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   void onMqttConnected() {
-    client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-      final MqttReceivedMessage recMess = c[0];
-      if (recMess.topic == "user/6a209/study") {
-        final MqttPublishMessage mpm = recMess.payload;
-        String message =
-            MqttPublishPayload.bytesToStringAsString(mpm.payload.message);
-        String irData = jsonEncode(jsonDecode(message)['data']);
-        print(irData);
-        updateIRData(irData);
+    MqttManager.instance().messageSubject.where((MqttData data){
+      if (data.topic == "user/6a209/study") {
+        return true;
       }
+    }).listen((MqttData data){
+      String irData = jsonEncode(jsonDecode(data.message)['data']);
+      updateIRData(irData);
     });
+    // client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+    //   final MqttReceivedMessage recMess = c[0];
+    //   if (recMess.topic == "user/6a209/study") {
+    //     final MqttPublishMessage mpm = recMess.payload;
+    //     String message =
+    //         MqttPublishPayload.bytesToStringAsString(mpm.payload.message);
+    //     String irData = jsonEncode(jsonDecode(message)['data']);
+    //     print(irData);
+    //     updateIRData(irData);
+    //   }
+    // });
+
   }
 
   void updateIRData(String irdata) {
-    for (CommandData command in commandsData.commands) {
+    for (CommandData command in commandsData.data) {
       if (command.name == currentCommandName) {
         command.irdata = irdata;
       }
@@ -90,18 +90,27 @@ class ProductDetailState extends State<ProductDetail> {
     setState(() {
       this.productDetailData = ProductDetailData.fromJSON(listData);
     });
-    var response =
+    CommandsData commandsRes = CommandsData();
+    try {
+      var response =
         await IRHTTP().post('/product/detail', data: {"productId": widget.pid});
-    print("---->>>> res ");
-    print(response);
-    CommandsData commandsRes = CommandsData.fromJSON(response);
-    if (commandsRes.code == 200 && commandsRes.commands.length > 0) {
+      print("prodcut/detail");
+      commandsRes = CommandsData.fromJson(response.data);
+    } catch (e){
+      print(e.toString());
+    }
+
+    print(commandsRes.code);
+
+    if (commandsRes.code == 200 && commandsRes.data.length > 0) {
+      isUpdate = true;
       setState(() {
-        commandsData = commandsRes;
+        this.commandsData = commandsRes;
         var map = Map();
-        for (CommandData command in commandsData.commands) {
+        for (CommandData command in commandsData.data) {
           map[command.name] = command.irdata;
         }
+        print(map);
 
         for (ProductGroup group in productDetailData.groups) {
           for (ProductRow row in group.rows) {
@@ -109,6 +118,13 @@ class ProductDetailState extends State<ProductDetail> {
           }
         }
       });
+    } else {
+        for (ProductGroup group in productDetailData.groups) {
+          for (ProductRow row in group.rows) {
+            this.commandsData.data.add(CommandData(name: row.name, id: -1, irdata: ""));
+          }
+        }
+ 
     }
   }
 
@@ -125,7 +141,7 @@ class ProductDetailState extends State<ProductDetail> {
               style: TextStyle(color: Colors.white),
             ),
             onPressed: () {
-              //  IRHTTP().post('/device/createCommand')
+              saveIRData();
             },
           )
         ],
@@ -138,6 +154,25 @@ class ProductDetailState extends State<ProductDetail> {
       ),
     );
   }
+
+  saveIRData() async {
+    String path = '/product/commands/create'; 
+    if (isUpdate) {
+      path = '/product/commands/update';
+    }
+    var commandMap = this.commandsData.toJson();
+    commandMap.remove("code");
+    commandMap.remove("msg");
+    print(commandMap);
+    await IRHTTP().post(path, data: {
+      'productId': this.widget.pid,
+      'commands': commandMap['data']
+    });
+    showToast("保存成功");
+    new Future.delayed(Duration(seconds: 2), () {
+      Navigator.pop(context);
+    });
+  } 
 
   List<Widget> buildDetailData() {
     List<Widget> listWidget = List();
@@ -234,7 +269,7 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   waitDialog() {
-    client.subscribe("user/6a209/study", MqttQos.exactlyOnce);
+    MqttManager.instance().subscribe("user/6a209/study", MqttQos.exactlyOnce);
 
     showDialog(
         context: context,
@@ -260,7 +295,7 @@ class ProductDetailState extends State<ProductDetail> {
 
   void cancelWait() {
     Navigator.pop(context);
-    client.unsubscribe("user/6a209/study");
+    MqttManager.instance().unsubscribe("user/6a209/study");
   }
 }
 

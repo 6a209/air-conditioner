@@ -37,7 +37,7 @@ class IndexPageState extends State<IndexPage> {
           itemCount: _listData == null ? 0 : _listData.length,
           itemBuilder: (BuildContext context, int index) {
             IndexItem item = _listData[index];
-            return new Card(
+            Widget card = new Card(
                 margin: new EdgeInsets.only(top: 18.0),
                 child: new Container(
                     decoration: BoxDecoration(
@@ -90,6 +90,11 @@ class IndexPageState extends State<IndexPage> {
                         )
                       ],
                     )));
+              return GestureDetector(child: card, onTap: () {
+                print(item);
+                Navigator.of(context).pushNamed('/device/detail', 
+                  arguments: {"pid": item.productId, "name": item.name, "deviceId": item.deviceId}); 
+              });
           },
         ));
 
