@@ -19,6 +19,7 @@ dependencies:
   mqtt_client: ^5.5.2
   fluttertoast: ^3.0.4
   rxdart: ^0.22.0
+  url_launcher: ^5.0.3
 
   flutter:
     sdk: flutter

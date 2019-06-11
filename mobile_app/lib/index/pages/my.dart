@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/index/models/my_action_data.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MyPage extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class MyPageState extends State<MyPage> {
     _listData = new List();
 
     var product = MyActionData(text: "我的产品", icon: Icons.apps, url: "xxxx");
-    var feedback = MyActionData(text: "反馈", icon: Icons.forum, url: "xxx");
+    var feedback = MyActionData(text: "反馈", icon: Icons.forum, url: "mailto:6a209qt@gmail.com?subject=智能红外");
     var about = MyActionData(text: "关于", icon: Icons.info, url: "xxxx");
 
     _listData.add(product);
@@ -106,8 +107,7 @@ class MyPageState extends State<MyPage> {
 
       var itemWidget = GestureDetector(
         onTap: () {
-          Navigator.of(context)
-              .pushNamed('/product', arguments: {"deviceId": -1});
+          itemTap(itemData.text, itemData.url);
         },
         child: container,
       );
@@ -117,5 +117,17 @@ class MyPageState extends State<MyPage> {
     return new Column(
       children: listWidget,
     );
+  }
+
+  void itemTap (String name, String url) async {
+    if (name == "反馈") {
+      await launch("mailto:6a209qt@gmail.com?subject=智能红外");
+    } else if (name == "我的产品") {
+      Navigator.of(context)
+        .pushNamed('/product', arguments: {"deviceId": -1});
+    } else if (name == "关于") {
+      Navigator.of(context)
+        .pushNamed('/about', arguments: {"deviceId": -1});
+    }
   }
 }
