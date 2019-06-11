@@ -15,16 +15,15 @@ class ProductDetail extends StatefulWidget {
   final int pid;
   String name = "空调";
 
-  ProductDetail({Key key, this.pid, this.name})
-      : super(key: key);
+  ProductDetail({Key key, this.pid, this.name}) : super(key: key);
 
   @override
   ProductDetailState createState() => new ProductDetailState();
 }
 
 class ProductDetailState extends State<ProductDetail> {
-  ProductDetailData productDetailData;
-  String currentCommandName = "";
+  // ProductDetailData productDetailData;
+  String currentCommandValue = "";
   CommandsData commandsData = new CommandsData(data: List());
   TextEditingController nameController = TextEditingController();
   bool isUpdate = false;
@@ -43,40 +42,21 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   void onMqttConnected() {
-    MqttManager.instance().messageSubject.where((MqttData data){
+    MqttManager.instance().messageSubject.where((MqttData data) {
       if (data.topic == "user/6a209/study") {
         return true;
       }
-    }).listen((MqttData data){
+    }).listen((MqttData data) {
       String irData = jsonEncode(jsonDecode(data.message)['data']);
       updateIRData(irData);
     });
-    // client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-    //   final MqttReceivedMessage recMess = c[0];
-    //   if (recMess.topic == "user/6a209/study") {
-    //     final MqttPublishMessage mpm = recMess.payload;
-    //     String message =
-    //         MqttPublishPayload.bytesToStringAsString(mpm.payload.message);
-    //     String irData = jsonEncode(jsonDecode(message)['data']);
-    //     print(irData);
-    //     updateIRData(irData);
-    //   }
-    // });
-
   }
 
   void updateIRData(String irdata) {
-    for (CommandData command in commandsData.data) {
-      if (command.name == currentCommandName) {
-        command.irdata = irdata;
-      }
-    }
     setState(() {
-      for (ProductGroup group in productDetailData.groups) {
-        for (ProductRow row in group.rows) {
-          if (row.name == currentCommandName) {
-            row.data = irdata;
-          }
+      for (CommandData command in commandsData.data) {
+        if (command.value == currentCommandValue) {
+          command.irdata = irdata;
         }
       }
     });
@@ -86,17 +66,13 @@ class ProductDetailState extends State<ProductDetail> {
   initData() async {
     String data = await DefaultAssetBundle.of(context)
         .loadString('config/airconditioner.json');
-    List<dynamic> listData = jsonDecode(data) as List;
-    setState(() {
-      this.productDetailData = ProductDetailData.fromJSON(listData);
-    });
     CommandsData commandsRes = CommandsData();
     try {
-      var response =
-        await IRHTTP().post('/product/detail', data: {"productId": widget.pid});
+      var response = await IRHTTP()
+          .post('/product/detail', data: {"productId": widget.pid});
       print("prodcut/detail");
       commandsRes = CommandsData.fromJson(response.data);
-    } catch (e){
+    } catch (e) {
       print(e.toString());
     }
 
@@ -106,25 +82,11 @@ class ProductDetailState extends State<ProductDetail> {
       isUpdate = true;
       setState(() {
         this.commandsData = commandsRes;
-        var map = Map();
-        for (CommandData command in commandsData.data) {
-          map[command.name] = command.irdata;
-        }
-        print(map);
-
-        for (ProductGroup group in productDetailData.groups) {
-          for (ProductRow row in group.rows) {
-            row.data = map[row.name];
-          }
-        }
       });
     } else {
-        for (ProductGroup group in productDetailData.groups) {
-          for (ProductRow row in group.rows) {
-            this.commandsData.data.add(CommandData(name: row.name, id: -1, irdata: ""));
-          }
-        }
- 
+      setState(() {
+        this.commandsData = CommandsData.fromJson(jsonDecode(data));
+      });
     }
   }
 
@@ -156,7 +118,7 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   saveIRData() async {
-    String path = '/product/commands/create'; 
+    String path = '/product/commands/create';
     if (isUpdate) {
       path = '/product/commands/update';
     }
@@ -164,15 +126,13 @@ class ProductDetailState extends State<ProductDetail> {
     commandMap.remove("code");
     commandMap.remove("msg");
     print(commandMap);
-    await IRHTTP().post(path, data: {
-      'productId': this.widget.pid,
-      'commands': commandMap['data']
-    });
+    await IRHTTP().post(path,
+        data: {'productId': this.widget.pid, 'commands': commandMap['data']});
     showToast("保存成功");
     new Future.delayed(Duration(seconds: 2), () {
       Navigator.pop(context);
     });
-  } 
+  }
 
   List<Widget> buildDetailData() {
     List<Widget> listWidget = List();
@@ -209,49 +169,32 @@ class ProductDetailState extends State<ProductDetail> {
     );
     listWidget.add(nameContainer);
 
-    if (null == productDetailData) {
-      return listWidget;
+    var columnChild = List<Widget>();
+    for (CommandData row in commandsData.data) {
+      Widget rowWidget = buildRow(row.value, row.irdata);
+      columnChild.add(rowWidget);
     }
-    for (ProductGroup groupData in productDetailData.groups) {
-      List<Widget> columnChild = List();
-      columnChild.add(Text(
-        groupData.title,
-        style: TextStyle(
-            color: Color(0xff3c3c3c),
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold),
-      ));
-      columnChild.add(Divider(
-        height: 1,
-        color: Color(0x7f727272),
-      ));
+    Column commandColumn = Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: columnChild,
+    );
+    Container groupContainer = new Container(
+      margin: EdgeInsets.only(top: 18.0),
+      child: commandColumn,
+    );
 
-      for (ProductRow row in groupData.rows) {
-        Widget rowWidget = buildRow(row.name, row.data);
-        columnChild.add(rowWidget);
-      }
-      Column column = Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: columnChild,
-      );
-      Container groupContainer = new Container(
-        margin: EdgeInsets.only(top: 18.0),
-        child: column,
-      );
-
-      listWidget.add(groupContainer);
-    }
+    listWidget.add(groupContainer);
     return listWidget;
   }
 
-  Widget buildRow(String name, String data) {
+  Widget buildRow(String value, String data) {
     return Row(
       children: <Widget>[
         Container(
           margin: EdgeInsets.only(right: 16.0),
           child: Text(
-            name,
+            value,
             style: TextStyle(color: Color(0xff727272)),
           ),
         ),
@@ -260,7 +203,7 @@ class ProductDetailState extends State<ProductDetail> {
           child: Text("学习", style: TextStyle(color: Colors.white)),
           color: Colors.blueAccent,
           onPressed: () {
-            currentCommandName = name;
+            currentCommandValue = value;
             waitDialog();
           },
         )

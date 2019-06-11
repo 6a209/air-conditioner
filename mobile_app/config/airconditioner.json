@@ -1,100 +1,109 @@
-[
-   {
-    "title": "功能",
-    "rows": [
-      {
-        "name": "打开",
-        "data": ""
-      },
-      {
-        "name": "关闭",
-        "data": ""
-      },
-      {
-        "name": "制热",
-        "data": ""
-      },
-      {
-        "name": "制冷",
-        "data": ""
-      },
-      {
-        "name": "通风",
-        "data": ""
-      },
-      {
-        "name": "除湿",
-        "data": ""
-      }
-    ] 
-  },
-  {
-    "title": "温度", 
-    "rows": [
-      {
-        "name": "16°",
-        "data": ""
-      },
-      {
-        "name": "17°",
-        "data": ""
-      },
-      {
-        "name": "18°",
-        "data": ""
-      },
-      {
-        "name": "19°",
-        "data": ""
-      },
-      {
-        "name": "20°",
-        "data": ""
-      },
-      {
-        "name": "21°",
-        "data": ""
-      },
-      {
-        "name": "22°",
-        "data": ""
-      },
-      {
-        "name": "23°",
-        "data": ""
-      },
-      {
-        "name": "24°",
-        "data": ""
-      },
-      {
-        "name": "25°",
-        "data": ""
-      },
-      {
-        "name": "26°",
-        "data": ""
-      },
-      {
-        "name": "27°",
-        "data": ""
-      },
-
-     {
-        "name": "28°",
-        "data": ""
-      },
-
-     {
-        "name": "29°",
-        "data": ""
-      },
-
-     {
-        "name": "30°",
-        "data": ""
-     }
-    ]
-  }
-
-]
+{
+  "data": [
+    {
+      "value": "打开",
+      "name": "power",
+      "data": ""
+    },
+    {
+      "value": "关闭",
+      "name": "power",
+      "data": ""
+    },
+    {
+      "value": "制热",
+      "name": "mode",
+      "data": ""
+    },
+    {
+      "value": "制冷",
+      "name": "mode",
+      "data": ""
+    },
+    {
+      "value": "通风",
+      "name": "mode",
+      "data": ""
+    },
+    {
+      "value": "除湿",
+      "name": "mode",
+      "data": ""
+    },
+    {
+      "value": "16°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "17°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "18°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "19°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "20°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "21°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "22°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "23°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "24°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "25°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "26°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "27°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "28°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "29°",
+      "name": "temperture",
+      "data": ""
+    },
+    {
+      "value": "30°",
+      "name": "temperture",
+      "data": ""
+    }
+  ]
+}
