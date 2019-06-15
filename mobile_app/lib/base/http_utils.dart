@@ -67,7 +67,7 @@ class IRHTTP {
 }
 
 class HTTPResponse {
-  Error error; 
+  var error; 
   var data;
   String msg;
   int code;
