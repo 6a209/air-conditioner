@@ -3,24 +3,36 @@ const Service = require('egg').Service
 
 class UserService extends Service {
 
-    async findUser(openId) {
-        console.log("openId" + openId)
-        const user = await this.app.mysql.get('user', {openId: openId})
-        console.log(user.nickname)
-        return user
-    } 
-
-    async createUser(user) {
-        const result = await this.app.mysql.insert('user', user)
-        const insertSuccess = result.affectedRows === 1
-        return insertSuccess 
+  async findUser(mobile, password) {
+    console.log(mobile)
+    console.log(password)
+    const user = await this.app.mysql.get('user', { mobile })
+    console.log(user)
+    if (!user) {
+      const err = new Error()
+      err.msg = "用户不存在"
+      throw err;
     }
-
-    async updateUser(user) {
-        await this.app.mysql.update('user', user)
-        const insertSuccess = result.affectedRows === 1
-        return insertSuccess 
+    if (user.password !== password) {
+      const err = new Error()
+      err.msg = "密码不正确"
+      throw err;
     }
+    console.log(user.nickname)
+    return user
+  }
+
+  async createUser(user) {
+    const result = await this.app.mysql.insert('user', user)
+    const insertSuccess = result.affectedRows === 1
+    return insertSuccess
+  }
+
+  async updateUser(user) {
+    await this.app.mysql.update('user', user)
+    const insertSuccess = result.affectedRows === 1
+    return insertSuccess
+  }
 }
 
 module.exports = UserService
