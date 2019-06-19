@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/index/models/my_action_data.dart';
+import 'package:mobile_app/user/user_manager.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyPage extends StatefulWidget {
@@ -16,7 +17,10 @@ class MyPageState extends State<MyPage> {
     _listData = new List();
 
     var product = MyActionData(text: "我的产品", icon: Icons.apps, url: "xxxx");
-    var feedback = MyActionData(text: "反馈", icon: Icons.forum, url: "mailto:6a209qt@gmail.com?subject=智能红外");
+    var feedback = MyActionData(
+        text: "反馈",
+        icon: Icons.forum,
+        url: "mailto:6a209qt@gmail.com?subject=智能红外");
     var about = MyActionData(text: "关于", icon: Icons.info, url: "xxxx");
 
     _listData.add(product);
@@ -67,6 +71,18 @@ class MyPageState extends State<MyPage> {
                   color: Colors.white, border: Border(top: border)),
               child: _buildItemList(context),
             ),
+            Container(
+              width: double.infinity,
+              color: Colors.white,
+              margin: EdgeInsets.only(top: 12.0),
+              child: FlatButton(
+                child: Text("退出登入", style: TextStyle(fontSize: 16.0, color: Color(0xff3c3c3c),)),
+                onPressed: () {
+                  UserManager.instance().logout();
+                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+                },
+              ),
+            )
           ],
         ));
   }
@@ -77,7 +93,7 @@ class MyPageState extends State<MyPage> {
     for (var i = 0; i < _listData.length; i++) {
       var itemData = _listData[i];
       var container = new Container(
-          height: 64,        
+          height: 64,
           alignment: AlignmentDirectional.centerStart,
           decoration: BoxDecoration(
               border: Border(
@@ -89,19 +105,27 @@ class MyPageState extends State<MyPage> {
                       style: BorderStyle.solid))),
           child: Row(
             children: <Widget>[
-              Container(margin: EdgeInsets.only(left: 24), child: Icon(itemData.icon,
-              color: Color(0xff727272),)),
+              Container(
+                  margin: EdgeInsets.only(left: 24),
+                  child: Icon(
+                    itemData.icon,
+                    color: Color(0xff727272),
+                  )),
               Expanded(
                 child: Container(
-                  margin: EdgeInsets.only(left: 12.0),
-                  child: Text(
-                  itemData.text,
-                  style: TextStyle(fontSize: 16.0, color: Color(0xff727272)),
-                )),
+                    margin: EdgeInsets.only(left: 12.0),
+                    child: Text(
+                      itemData.text,
+                      style:
+                          TextStyle(fontSize: 16.0, color: Color(0xff3c3c3c)),
+                    )),
               ),
               Container(
-                margin: EdgeInsets.only(right: 16.0),
-                child: Icon(Icons.keyboard_arrow_right, color: Color(0xff727272),))
+                  margin: EdgeInsets.only(right: 16.0),
+                  child: Icon(
+                    Icons.keyboard_arrow_right,
+                    color: Color(0xff727272),
+                  ))
             ],
           ));
 
@@ -119,15 +143,13 @@ class MyPageState extends State<MyPage> {
     );
   }
 
-  void itemTap (String name, String url) async {
+  void itemTap(String name, String url) async {
     if (name == "反馈") {
       await launch("mailto:6a209qt@gmail.com?subject=智能红外");
     } else if (name == "我的产品") {
-      Navigator.of(context)
-        .pushNamed('/product', arguments: {"deviceId": -1});
+      Navigator.of(context).pushNamed('/product', arguments: {"deviceId": -1});
     } else if (name == "关于") {
-      Navigator.of(context)
-        .pushNamed('/about', arguments: {"deviceId": -1});
+      Navigator.of(context).pushNamed('/about', arguments: {"deviceId": -1});
     }
   }
 }
