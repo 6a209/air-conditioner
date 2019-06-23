@@ -46,6 +46,9 @@ class AppBootHook {
         // device receive ircode 
         let topicStr = topic.replace('device/receiveIR/', '')
         let {pk, dn} = this.getDeviceInfo(topicStr)
+        console.log('*(*(*(*(*(*(*(*(*((*')
+        const obj = JSON.parse(message)
+        console.log("length " + obj.data.length)
         that.publishIRCode2App(pk, dn, message)
       } else if (topic.startsWith('device/status')) {
         // device update status 
@@ -80,9 +83,13 @@ class AppBootHook {
 
   async publishIRCode2App(pk, dn, message) {
     const ctx = await this.app.createAnonymousContext()
-    const topic = await ctx.service.device.getTopicByDevice(pk, dn)
+    let topic = await ctx.service.device.getTopicByDevice(pk, dn)
+    topic = "user/" + topic + "/study"
     if (topic) {
-      this.client.publish('user/' + topic + '/study', message)
+      console.log("publishIRCode2App")
+      console.log(topic)
+      console.log(message)
+      this.client.publish(topic, message)
     }
   }
 
