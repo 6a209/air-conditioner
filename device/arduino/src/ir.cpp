@@ -25,20 +25,24 @@ void initIR() {
 
 void receiveIRData(void (*onReceiveData)(uint16_t data[], int len)){
     if (irrecv.decode(&results)) {
+
+      dumpRawData();
+
         Serial.println("results.rawlen");
         Serial.println(results.rawlen);
-        uint16_t rawData[results.rawlen];
-        for (int i = 0; i < results.rawlen; i ++) {
-            rawData[i] = results.rawbuf[i] * 2;
+        uint16_t rawData[results.rawlen - 1];
+        for (int i = 1; i < results.rawlen; i ++) {
+            rawData[i - 1] = results.rawbuf[i] * kRawTick;
         }
-        int len = sizeof(rawData) / sizeof(rawData[0]);
-        Serial.println(len);
-        onReceiveData(rawData, len);
+        // int len = sizeof(rawData) / sizeof(rawData[0]);
+        // Serial.println(len);
+        onReceiveData(rawData, results.rawlen - 1);
     }
 }
 
 void sendRawData(uint16_t data[], int len) {
     irsend.sendRaw(data, len, 38);
+    delay(500);
 }
 
 void dumpRawData() {

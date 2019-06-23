@@ -60,14 +60,21 @@ class DeviceService extends Service {
   async getDetail(deviceId) {
     console.log('--->> deviceId' + deviceId)
     let result = await this.app.mysql.get('device', { 'id': deviceId })
-    console.log(result)
     const productId = result.productId
     const commands = await this.app.mysql.select('command', { 'productId': productId })
     result['commands'] = commands
     // get device status 
+
+    console.log("get detail")
+    console.log(result)
     const key = result.productKey + "/" + result.deviceName
     let status = await this.getStatus(key)
+    status = JSON.parse(status)
+
+    console.log("status -->>>")
+    console.log(status)
     result = Object.assign(result, status)
+    console.log(result)
     return result
   }
 
@@ -78,15 +85,21 @@ class DeviceService extends Service {
     const device = await this.app.mysql.get('device', { id: deviceId })
     const res = {}
     console.log(command)
+    let size = 0
     try {
-      res['data'] = JSON.parse(command.irdata)
+     const commandObj  = JSON.parse(command.irdata)
+     size = commandObj.length
+     console.log("size -> " + size)
     } catch (e) {
       return { code: 500, msg: "command irdata json parse error" }
     } 
     res['name'] = command.name
     res['value'] = command.value
     res['deviceId'] = deviceId
-    const message = JSON.stringify(res)
+
+    // info&command_array&array_size split by '&'
+    const message = JSON.stringify(res) + "&"  + command.irdata + "&" +  size
+    // const message = JSON.stringify(res)
     const key = device.productKey + "/" + device.deviceName
     let status = await this.getStatus(key) || "{}"
 
@@ -109,6 +122,7 @@ class DeviceService extends Service {
       console.log(commandTopic)
       console.log(message)
       console.log(message.length)
+
       await this.app.client.publish(commandTopic, message)
     } catch (e) {
       return {code: 500, msg: "device mqtt disconnect"}

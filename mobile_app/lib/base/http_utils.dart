@@ -19,7 +19,7 @@ class IRHTTP {
   }
 
   void login(jwtToken) {
-    dio.options.headers["Authorization"] = jwtToken;
+    dio.options.headers["Authorization"] = "Bearer " + jwtToken;
   }
   
   void logout() {
@@ -36,6 +36,7 @@ class IRHTTP {
     print('path is => $path');
     try {
       var response =  await dio.post(path, data: data); 
+      print(response);
       httpResponse.code = response.data['code'];
       httpResponse.msg = response.data['msg'];
       httpResponse.data = response.data['data'];
@@ -59,6 +60,7 @@ class IRHTTP {
       }
     } on Error catch(e) {
       print(e.toString());
+      print(e.stackTrace);
       httpResponse.error = e;
       httpResponse.msg = "未知异常";
     }
@@ -67,7 +69,7 @@ class IRHTTP {
 }
 
 class HTTPResponse {
-  Error error; 
+  var error; 
   var data;
   String msg;
   int code;
