@@ -22,6 +22,7 @@ class DeviceDetailBloc {
 
   bool isUpdateProperty = false;
   String topic;
+  Timer timer;
 
   void init(int deviceId) async {
     loadingSubject.sink.add(true);
@@ -31,19 +32,23 @@ class DeviceDetailBloc {
     MqttManager.instance().messageSubject.where((data) {
       return data.topic == topic;
     }).listen((data) {
+      if (timer != null) {
+        timer.cancel();
+      }
       isUpdateProperty = false;
       var jsonData = json.decode(data.message);
       updateProperty(jsonData['name'], jsonData['value']);
+      loadingSubject.sink.add(false);
     });
     await getDetail(deviceId);
 
-    updatePropertySubject
-      .listen((name) async {
-        BaseData data = await execCommand(name); 
-        if (data.code != 200) {
-           showToast(data.msg);
-        }
-      });
+    // updatePropertySubject
+    //   .listen((name) async {
+    //     BaseData data = await execCommand(name); 
+    //     if (data.code != 200) {
+    //        showToast(data.msg);
+    //     }
+    //   });
 
     loadingSubject.sink.add(false);
     // loadingSubject.sink.add(false);
@@ -93,7 +98,8 @@ class DeviceDetailBloc {
   }
 
   addTemperature() async {
-    updatePropertySubject.add((temperature + 1).toString());
+    await execCommand((temperature + 1).toString());
+    // updatePropertySubject.add();
   }
 
   execCommand(String value) async {
@@ -102,12 +108,10 @@ class DeviceDetailBloc {
     } 
     loadingSubject.add(true); 
     isUpdateProperty = true;
-    Future.delayed(Duration(seconds: 30), (){
-      if (isUpdateProperty) {
+    timer = Timer(Duration(seconds: 10), () {
         isUpdateProperty = false;
         showToast("设备响应超时");
-        loadingSubject.add(false);
-      }
+        loadingSubject.add(false); 
     });
     int deviceId = _detailSubject.value.id;
     CommandData command = getCommand(value);
