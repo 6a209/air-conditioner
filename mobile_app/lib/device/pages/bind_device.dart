@@ -37,10 +37,10 @@ class BindPageState extends State<BindPage> {
         if (dg != null) {
           print(dg.toString());
           var codec = new Utf8Codec();
-          String jsonData = codec.decode(dg.data);
-          var broadcast = DeviceData.fromJSON(json.decode(jsonData));
-          if (broadcast.code == 200) {
-            addDevice(broadcast);
+          String deviceData = codec.decode(dg.data);
+          List<String> list = deviceData.split("&");
+          if (list.length == 2) {
+            addDevice(DeviceData(pk: list[0], dn: list[1]));
           }
         }
       });
