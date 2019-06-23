@@ -13,12 +13,12 @@ import 'package:fluro/fluro.dart';
 import './device/pages/device_detail.dart';
 import 'dart:io';
 
-void main() {
+void main() async {
   // final router = Router();
   // Object a;
 
   MqttManager.instance().init();
-  UserManager.instance().init();
+  await UserManager.instance().init();
 
   runApp(MyApp());
   // initialRoute: '/',
