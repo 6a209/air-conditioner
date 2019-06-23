@@ -30,15 +30,20 @@ class MqttManager {
     client.onConnected = onMqttConnected;
     final MqttConnectMessage connMess = MqttConnectMessage()
         .withClientIdentifier('Mqtt_MyClientUniqueId')
-        .keepAliveFor(20) // Must agree with the keep alive set above or not set
+        .keepAliveFor(60) // Must agree with the keep alive set above or not set
         .withWillTopic('willtopic') // If you set this you must set a will message
         .withWillMessage('My Will message')
         .startClean() // Non persistent session for testing
         .withWillQos(MqttQos.atLeastOnce);
     client.connectionMessage = connMess;
+    client.onDisconnected = () {
+      print("client Disconnected");
+    };
     client.connect();
 
     client.updates.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+      print("___listen");
+      print("c leng +.."  + c.length.toString());
       final MqttReceivedMessage recMess = c[0];
       final MqttPublishMessage mpm = recMess.payload;
       String message = MqttPublishPayload.bytesToStringAsString(mpm.payload.message);
@@ -47,7 +52,10 @@ class MqttManager {
   }
 
   subscribe(String topic, MqttQos qos) {
+    print(client.connectionStatus.state);
+    print(client.connectionState);
     if (client.connectionStatus.state == MqttConnectionState.connected) {
+      print("mqtt subscribe, topic is -> " + topic);
       client.subscribe(topic, qos);
       return true;
     }
