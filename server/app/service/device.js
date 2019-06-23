@@ -60,14 +60,21 @@ class DeviceService extends Service {
   async getDetail(deviceId) {
     console.log('--->> deviceId' + deviceId)
     let result = await this.app.mysql.get('device', { 'id': deviceId })
-    console.log(result)
     const productId = result.productId
     const commands = await this.app.mysql.select('command', { 'productId': productId })
     result['commands'] = commands
     // get device status 
+
+    console.log("get detail")
+    console.log(result)
     const key = result.productKey + "/" + result.deviceName
     let status = await this.getStatus(key)
+    status = JSON.parse(status)
+
+    console.log("status -->>>")
+    console.log(status)
     result = Object.assign(result, status)
+    console.log(result)
     return result
   }
 
