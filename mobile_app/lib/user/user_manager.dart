@@ -27,6 +27,7 @@ class UserManager {
   final String HEAD_IMG_KEY = "head_img";
   final String NAME_KEY = "name";
   final String TOPIC_KEY = "topic";
+  final String TOKEN_KEY = "token";
 
   UserManager._() {
     init();
@@ -39,6 +40,8 @@ class UserManager {
       String headimg = prefs.getString(HEAD_IMG_KEY);
       String name = prefs.getString(NAME_KEY);
       String topic = prefs.getString(TOPIC_KEY);
+      String token = prefs.getString(TOKEN_KEY);
+      IRHTTP().login(token);
       userData = UserData(headimgurl: headimg, nickname: name, topic: topic);
     }
   }
@@ -66,6 +69,7 @@ class UserManager {
       _setString(HEAD_IMG_KEY, userData.headimgurl);
       _setString(NAME_KEY, userData.nickname);
       _setString(TOPIC_KEY, userData.topic);
+      _setString(TOKEN_KEY, userData.token);
       _setBool(IS_LOGIN_KEY, _isLogin);
       IRHTTP().login(userData.token);
       return true;
