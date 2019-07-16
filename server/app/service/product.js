@@ -4,12 +4,14 @@ const Service = require('egg').Service
 class ProductService extends Service {
 
   async getUserProduct(uid) {
-    const result = await this.app.mysql.select('userproduct', { uid })
+    const result = await this.app.mysql.select('userproduct', {where: { uid }})
     const productIds = []
+    console.log(result)
     for (const item of result) {
       productIds.push(item.pid)
     }
-    const userProduct = await this.app.mysql.select('product', { id: productIds })
+    const userProduct = await this.app.mysql.select('product', {where: { id: productIds }})
+    console.log(userProduct)
     return userProduct
   }
 
