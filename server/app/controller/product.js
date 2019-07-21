@@ -7,9 +7,10 @@ class ProductController extends Controller {
 
   async create() {
     const { app, ctx } = this
+    const uid = this.getUid()
     const product = ctx.request.body.product
     console.log(product)
-    const result = await this.service.product.createProduct(product)
+    const result = await this.service.product.createProduct(uid, product)
     ctx.body = ctx.helper.successRes(200)
   }
 

@@ -15,14 +15,21 @@ class ProductService extends Service {
     return userProduct
   }
 
-  async createProduct(product) {
-    const result = await this.app.mysql.insert('product', product)
+  async createProduct(uid, product) {
+    let result = await this.app.mysql.insert('product', product)
+    const pid = result.insertId
+    result = await this.app.mysql.insert('userproduct', {uid, pid})
     return result
   }
 
   async updateProduct(product) {
     const result = await this.app.mysql.update('product', product)
     return result
+  }
+
+  async getProduct(pid) {
+    const result = await this.app.mysql.get('product', { id: pid })
+    return result;
   }
 
   async hasProduct(uid, pid) {
@@ -64,7 +71,7 @@ class ProductService extends Service {
   }
 
   async getProductDetail(productId) {
-    const commands = await this.app.mysql.select('command', { 'productId': productId })
+    const commands = await this.app.mysql.select('command', {where: { 'productId': productId }})
     return commands
   }
 }
