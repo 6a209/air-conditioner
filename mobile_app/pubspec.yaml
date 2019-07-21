@@ -53,6 +53,11 @@ flutter:
   assets:
     - config/airconditioner.json
     - assets/app_icon.png
+    - assets/cold.png
+    - assets/hot.png
+    - assets/wet.png
+    - assets/wind.png
+
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg
 
