@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:mobile_app/base/base_page.dart';
-
+import 'package:mobile_app/device/models/command_data.dart';
 import 'package:mobile_app/device/models/device_data.dart';
-import 'package:mqtt_client/mqtt_client.dart';
 import '../bloc/device_detail_bloc.dart';
 import 'package:mobile_app/base/base_widget.dart';
 
@@ -51,7 +48,6 @@ class DeviceDetailState extends State<DeviceDetailPage> {
         StreamBuilder<DeviceDetailData>(
             stream: deviceDetailBloc.detailSubject.stream,
             builder: (context, AsyncSnapshot<DeviceDetailData> snapshot) {
-
               if (snapshot.hasData) {
                 return _deviceDetail(snapshot.data);
               } else {
@@ -114,10 +110,18 @@ class DeviceDetailState extends State<DeviceDetailPage> {
     list.add(functionCtrl(deviceData));
     list.add(Container(
       margin: EdgeInsets.only(bottom: 48.0),
-      alignment: Alignment.center,
+      width: 192,
+      height: 48,
       child: FlatButton(
-        child: Text("打开"),
-        onPressed: () {},
+        child: Text(deviceData.power == POWER_ON ? "关闭" : "打开", style: TextStyle(color: Colors.white),),
+        color: deviceData.power == POWER_ON ? Colors.blueAccent : Colors.blueGrey,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        onPressed: () {
+          deviceData.power == POWER_ON ? 
+            deviceDetailBloc.powerOff() : deviceDetailBloc.powerOn(); 
+        },
       ),
     ));
     return Column(
@@ -156,41 +160,30 @@ class DeviceDetailState extends State<DeviceDetailPage> {
   }
 
   Widget functionCtrl(DeviceDetailData deviceData) {
-    String hot = "制热";
-    String cold = "制冷";
-    String wind = "通风";
-    String wet = "除湿";
     return Container(
       margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 48.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          FlatButton(
-            child: Text(hot),
-            onPressed: () {
-              deviceDetailBloc.execCommand(hot);
-            },
-          ),
-          FlatButton(
-            child: Text(cold),
-            onPressed: () {
-              deviceDetailBloc.execCommand(cold);
-            },
-          ),
-          FlatButton(
-            child: Text(wind),
-            onPressed: () {
-              deviceDetailBloc.execCommand(wind);
-            },
-          ),
-          FlatButton(
-            child: Text(wet),
-            onPressed: () {
-              deviceDetailBloc.execCommand(wet);
-            },
-          ),
+          funBtn("cold"),
+          funBtn("hot"),
+          funBtn("wet"),
+          funBtn("wind")
         ],
       ),
     );
+  }
+
+  Widget funBtn(String name) {
+    bool isSelect = deviceDetailBloc.modeValue(name) == deviceDetailBloc.mode;
+    return GestureDetector(
+      child: ImageIcon(
+        AssetImage("assets/" + name + ".png"),
+        size: 64,
+        color: isSelect ? Colors.blueAccent : Colors.grey, 
+      ),
+      onTap: () {
+        deviceDetailBloc.funBtnClick(name);        
+      });
   }
 }

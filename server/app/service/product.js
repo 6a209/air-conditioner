@@ -4,23 +4,32 @@ const Service = require('egg').Service
 class ProductService extends Service {
 
   async getUserProduct(uid) {
-    const result = await this.app.mysql.select('userproduct', { uid })
+    const result = await this.app.mysql.select('userproduct', {where: { uid }})
     const productIds = []
+    console.log(result)
     for (const item of result) {
       productIds.push(item.pid)
     }
-    const userProduct = await this.app.mysql.select('product', { id: productIds })
+    const userProduct = await this.app.mysql.select('product', {where: { id: productIds }})
+    console.log(userProduct)
     return userProduct
   }
 
-  async createProduct(product) {
-    const result = await this.app.mysql.insert('product', product)
+  async createProduct(uid, product) {
+    let result = await this.app.mysql.insert('product', product)
+    const pid = result.insertId
+    result = await this.app.mysql.insert('userproduct', {uid, pid})
     return result
   }
 
   async updateProduct(product) {
     const result = await this.app.mysql.update('product', product)
     return result
+  }
+
+  async getProduct(pid) {
+    const result = await this.app.mysql.get('product', { id: pid })
+    return result;
   }
 
   async hasProduct(uid, pid) {
@@ -62,7 +71,7 @@ class ProductService extends Service {
   }
 
   async getProductDetail(productId) {
-    const commands = await this.app.mysql.select('command', { 'productId': productId })
+    const commands = await this.app.mysql.select('command', {where: { 'productId': productId }})
     return commands
   }
 }

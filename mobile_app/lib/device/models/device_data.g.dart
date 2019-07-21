@@ -15,13 +15,8 @@ DeviceDetailData _$DeviceDetailDataFromJson(Map<String, dynamic> json) {
       detailImage: json['detailImage'] as String,
       name: json['name'] as String,
       temperature: json['temperature'],
-      mode: json['mode'] as String,
-      power: json['power'] as String,
-      commands: (json['commands'] as List)
-          ?.map((e) => e == null
-              ? null
-              : CommandData.fromJson(e as Map<String, dynamic>))
-          ?.toList())
+      mode: json['mode'] as int,
+      power: json['power'] as int)
     ..id = json['id'] as int;
 }
 
@@ -36,6 +31,5 @@ Map<String, dynamic> _$DeviceDetailDataToJson(DeviceDetailData instance) =>
       'name': instance.name,
       'temperature': instance.temperature,
       'mode': instance.mode,
-      'power': instance.power,
-      'commands': instance.commands
+      'power': instance.power
     };

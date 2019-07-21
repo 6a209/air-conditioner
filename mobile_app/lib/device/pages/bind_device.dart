@@ -22,7 +22,11 @@ class BindPageState extends State<BindPage> {
     super.initState();
     _deviceList = new List();
     Connectivity().getWifiName().then((wifiName) {
-      _ssidName = wifiName;
+      print("->>>>>>>");
+      print(wifiName);
+      setState(() {
+        _ssidName = wifiName;
+      });
     });
 
     var address = new InternetAddress('0.0.0.0');
@@ -85,14 +89,10 @@ class BindPageState extends State<BindPage> {
               child: Column(
                 children: <Widget>[
                   new Container(
-                    margin: EdgeInsets.only(top: 12.0),
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.all(12.0),
                     child: new Text('请确保手机和设备在同一个wifi'),
                   ),
-                  new Container(
-                    alignment: Alignment.center,
-                    constraints: BoxConstraints.expand(height: 24.0),
-                    child: new Text('当前wifi: $_ssidName'),
-                  )
                 ],
               ),
             ),
@@ -154,13 +154,14 @@ class BindPageState extends State<BindPage> {
   void bind(DeviceData deviceData) async {
     var response = await IRHTTP().post('/device/bind', data: {"pk": deviceData.pk, "dn": deviceData.dn});
     print(response);
-    if (response.data['code'] == 200) {
-      // sendBindSuccess();
-      var deviceId = response.data['data']['deviceId'];
-      Navigator.of(context).pushNamed('/product', arguments: {"deviceId": deviceId});
-    } else {
-      showToast(response.data['msg']); 
-    }
+
+    Navigator.of(context).pushNamed('/brand', arguments: {"deviceId": 1});
+    // if (response.data['code'] == 200) {
+    //   var deviceId = response.data['data']['deviceId'];
+    //   Navigator.of(context).pushNamed('/product', arguments: {"deviceId": deviceId});
+    // } else {
+    //   showToast(response.data['msg']); 
+    // }
   }
 
   // void sendBindSuccess() {

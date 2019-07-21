@@ -18,4 +18,7 @@ module.exports = app => {
   router.post('/product/detail', app.jwt, controller.product.productDetail);
   router.post('/product/update', app.jwt, controller.product.update);
   router.post('/product/create', app.jwt, controller.product.create);
+
+  router.post('/brand/list', controller.brand.brandList);
+  router.post('/brand/mode',  controller.brand.modeList);
 };

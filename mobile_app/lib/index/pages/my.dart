@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/index/models/my_action_data.dart';
 import 'package:mobile_app/user/user_manager.dart';
+import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MyPage extends StatefulWidget {
@@ -149,7 +150,13 @@ class MyPageState extends State<MyPage> {
     } else if (name == "我的产品") {
       Navigator.of(context).pushNamed('/product', arguments: {"deviceId": -1});
     } else if (name == "关于") {
-      Navigator.of(context).pushNamed('/about', arguments: {"deviceId": -1});
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      String appName = "智能空调";
+      String version = packageInfo.version;
+      print("---------");
+      print(appName);
+      print(version);
+      Navigator.of(context).pushNamed('/about', arguments: {"appName": appName, "version": version});
     }
   }
 }

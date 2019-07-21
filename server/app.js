@@ -42,22 +42,20 @@ class AppBootHook {
         let {pk, dn} = this.getDeviceInfo(topicStr)
         const status = {online: 1}
         that.updateStatus(pk, dn, status)
+
       } else if (topic.startsWith('device/receiveIR')) {
         // device receive ircode 
         let topicStr = topic.replace('device/receiveIR/', '')
         let {pk, dn} = this.getDeviceInfo(topicStr)
-        console.log('*(*(*(*(*(*(*(*(*((*')
         const obj = JSON.parse(message)
         console.log("length " + obj.data.length)
         that.publishIRCode2App(pk, dn, message)
+
       } else if (topic.startsWith('device/status')) {
         // device update status 
         let topicStr = topic.replace('device/status/', '')
         let {pk, dn} = this.getDeviceInfo(topicStr)
-        const msgObj = JSON.parse(message)
-        const name  = msgObj['name']
-        const status = {} 
-        status[name] = msgObj['value']
+        const status = JSON.parse(message)
         console.log(status)
         that.updateStatus(pk, dn, status)
         that.publishStatus2App(pk, dn, message)   
@@ -77,7 +75,7 @@ class AppBootHook {
 
   async updateStatus(pk, dn, status) {
     const ctx = await this.app.createAnonymousContext()
-    ctx.service.device.updateStatus({key: pk + "/" + dn, status}); 
+    await ctx.service.device.updateStatus({key: pk + "/" + dn, status}); 
   }
 
 

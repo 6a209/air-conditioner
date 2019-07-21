@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/base/mqtt_utils.dart';
+import 'package:mobile_app/device/pages/brand_list.dart';
+import 'package:mobile_app/device/pages/brand_mode.dart';
+import 'package:mobile_app/index/pages/about.dart';
 import 'package:mobile_app/user/login.dart';
 import 'package:mobile_app/user/user_manager.dart';
 import './index/pages/index.dart' as index;
@@ -34,7 +37,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
         color: Color(0xFFFF00BF),
-        home: UserManager.instance().isLogin() ?  MyTabs() : LoginPage(),
+        home: UserManager.instance().isLogin() ? MyTabs() : LoginPage(),
         onGenerateRoute: (RouteSettings settings) {
           Map argu = settings.arguments;
           print(argu);
@@ -42,17 +45,31 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (context) => BindPage());
           } else if (settings.name == '/product') {
             return MaterialPageRoute(
-              builder: (context) =>
-                new ProductList(deviceId: argu['deviceId']));
+                builder: (context) =>
+                    new ProductList(deviceId: argu['deviceId']));
           } else if (settings.name == '/product/detail') {
-            return MaterialPageRoute(builder: (context) => new ProductDetail(pid: argu['pid'], name: argu['name']));
+            return MaterialPageRoute(
+                builder: (context) =>
+                    new ProductDetail(pid: argu['pid'], name: argu['name']));
           } else if (settings.name == '/device/detail') {
-            return MaterialPageRoute(builder: (context) => 
-              new DeviceDetailPage(pid: argu['pid'], deviceId: argu['deviceId'], name: argu['name'],));
+            return MaterialPageRoute(
+                builder: (context) => new DeviceDetailPage(
+                      pid: argu['pid'],
+                      deviceId: argu['deviceId'],
+                      name: argu['name'],
+                    ));
           } else if (settings.name == '/index') {
-            return MaterialPageRoute(builder: (context) => new MyTabs());    
+            return MaterialPageRoute(builder: (context) => new MyTabs());
           } else if (settings.name == '/login') {
             return MaterialPageRoute(builder: (context) => new LoginPage());
+          } else if (settings.name == '/brand') {
+            return MaterialPageRoute(builder: (context) => new BrandPage(argu["deviceId"]));
+          } else if (settings.name == '/brand/mode') {
+            return MaterialPageRoute(builder: (context) => new BrandModePage(argu['name'], argu['brandId'], argu["deviceId"]));
+          } else if (settings.name == '/about') {
+            return MaterialPageRoute(
+                builder: (context) =>
+                    new AboutPage(argu['appName'], argu['version']));
           }
         });
   }
@@ -95,15 +112,19 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      bottomNavigationBar: new Material(
-          color: Colors.blueAccent,
-          child: new TabBar(
-              controller: controller,
-              unselectedLabelColor: Colors.white54,
-              tabs: <Tab>[
-                new Tab(text: "设备", icon: new Icon(Icons.memory)),
-                new Tab(text: "我的", icon: new Icon(Icons.person))
-              ])),
+      bottomNavigationBar: SizedBox(
+          height: 60.0,
+          child: new Material(
+              color: Colors.white,
+              child: new TabBar(
+                  controller: controller,
+                  indicatorColor: Colors.transparent,
+                  labelColor: Colors.blueAccent,
+                  unselectedLabelColor: Colors.black38,
+                  tabs: <Tab>[
+                    new Tab(text: "设备", icon: new Icon(Icons.memory)),
+                    new Tab(text: "我的", icon: new Icon(Icons.person))
+                  ]))),
       body: new TabBarView(
           controller: controller,
           children: <Widget>[new index.IndexPage(), new my.MyPage()]),

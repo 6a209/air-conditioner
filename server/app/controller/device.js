@@ -83,21 +83,40 @@ class DeviceController extends Controller {
     }
   }
 
+  // async command() {
+  //   const { app, ctx } = this
+  //   console.log("----------------------")
+  //   console.log("------- command ---------------")
+  //   const uid = this.getUid()
+  //   const deviceId = ctx.request.body.deviceId 
+  //   const productId = ctx.request.body.productId
+  //   const commandName = ctx.request.body.commandName 
+  //   const commandId = ctx.request.body.commandId
+  //   let result = await this.service.device.hasDevice(uid, deviceId)
+  //   if (!result) {
+  //     ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
+  //     return
+  //   }
+  //   result = await this.service.device.excuteCommand({commandId, deviceId})
+  //   if (result.code == 200) {
+  //     ctx.body = ctx.helper.successRes(200, {})
+  //   } else {
+  //     ctx.body = ctx.helper.failRes(result.code, result.msg)
+  //   }
+  // }
+
   async command() {
     const { app, ctx } = this
-    console.log("----------------------")
-    console.log("------- command ---------------")
     const uid = this.getUid()
     const deviceId = ctx.request.body.deviceId 
-    const productId = ctx.request.body.productId
-    const commandName = ctx.request.body.commandName 
-    const commandId = ctx.request.body.commandId
     let result = await this.service.device.hasDevice(uid, deviceId)
     if (!result) {
       ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
       return
     }
-    result = await this.service.device.excuteCommand({commandId, deviceId})
+    const commandInfo = ctx.request.body
+    result = await this.service.device.executeCommand(commandInfo)
+
     if (result.code == 200) {
       ctx.body = ctx.helper.successRes(200, {})
     } else {
