@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "private": true,
+  "gypfile": true,
   "egg": {
     "declarations": true
   },
