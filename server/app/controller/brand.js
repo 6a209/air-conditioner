@@ -19,8 +19,10 @@ class BrandController extends Controller {
 
   async modeList() {
     const { app, ctx } = this
+    console.log("modeList")
     const brandId = ctx.request.body.brandId
     const result = await this.service.brand.getBrandMode(brandId)
+    console.log(result)
     if (result) {
       ctx.body = ctx.helper.successRes(200, result)
     } else {

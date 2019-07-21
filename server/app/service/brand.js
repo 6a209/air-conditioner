@@ -12,6 +12,7 @@ class BrandService extends Service {
   async getBrandMode(brandId) {
     console.log("brandId" + brandId)
     let mode = await this.app.mysql.select('brand_mode', {where: { brand_id: brandId }})
+    console.log(mode)
     return mode
   } 
 
