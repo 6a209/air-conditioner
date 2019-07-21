@@ -154,13 +154,14 @@ class BindPageState extends State<BindPage> {
   void bind(DeviceData deviceData) async {
     var response = await IRHTTP().post('/device/bind', data: {"pk": deviceData.pk, "dn": deviceData.dn});
     print(response);
-    if (response.data['code'] == 200) {
-      // sendBindSuccess();
-      var deviceId = response.data['data']['deviceId'];
-      Navigator.of(context).pushNamed('/product', arguments: {"deviceId": deviceId});
-    } else {
-      showToast(response.data['msg']); 
-    }
+
+    Navigator.of(context).pushNamed('/brand', arguments: {"deviceId": 1});
+    // if (response.data['code'] == 200) {
+    //   var deviceId = response.data['data']['deviceId'];
+    //   Navigator.of(context).pushNamed('/product', arguments: {"deviceId": deviceId});
+    // } else {
+    //   showToast(response.data['msg']); 
+    // }
   }
 
   // void sendBindSuccess() {

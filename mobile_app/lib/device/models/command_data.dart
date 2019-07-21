@@ -24,3 +24,22 @@ class CommandData {
   factory CommandData.fromJson(Map<String, dynamic> json) => _$CommandDataFromJson(json); 
   Map<String, dynamic> toJson() => _$CommandDataToJson(this);
 }
+
+const int POWER_ON = 0x00;
+const int POWER_OFF = 0x01;
+
+const int MODE_COOL = 0x00;
+const int MODE_HEAT = 0x01;
+const int MODE_AUTO = 0x02;
+const int MODE_FAN = 0x03;
+const int MODE_DRY = 0x04;
+
+class AirCommand {
+  int power;
+  int mode;
+  int temperature = -1; 
+}
+
+
+
+

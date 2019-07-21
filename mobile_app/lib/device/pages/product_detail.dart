@@ -33,6 +33,7 @@ class ProductDetailState extends State<ProductDetail> {
   @override
   void initState() {
     super.initState();
+    initMqtt();
     initData();
   }
 
@@ -41,13 +42,18 @@ class ProductDetailState extends State<ProductDetail> {
     super.dispose();
   }
 
-  void onMqttConnected() {
+  void initMqtt() {
     MqttManager.instance().messageSubject.where((MqttData data) {
+
       if (data.topic == "user/6a209/study") {
         return true;
       }
     }).listen((MqttData data) {
-      String irData = jsonEncode(jsonDecode(data.message)['data']);
+      print("mqtt irdata");
+      List jsonData = jsonDecode(data.message)['data'] as List;
+      print("lenght -->>>");
+      print(jsonData.length);
+      String irData = jsonEncode(jsonData);
       updateIRData(irData);
     });
   }
@@ -212,7 +218,7 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   waitDialog() {
-    MqttManager.instance().subscribe("user/6a209/study", MqttQos.exactlyOnce);
+    MqttManager.instance().subscribe("user/6a209/study", MqttQos.atMostOnce);
 
     showDialog(
         context: context,
@@ -281,7 +287,7 @@ class CountDownState extends State<CountDownDialog> {
     return new Container(
         alignment: Alignment.center,
         height: 72.0,
-        padding: EdgeInsets.all(24.0),
+        // padding: EdgeInsets.all(24.0),
         child: Text(
           countDownSecond.toString(),
           style: TextStyle(

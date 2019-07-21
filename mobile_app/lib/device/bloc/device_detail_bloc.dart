@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:mobile_app/base/base_data.dart';
@@ -37,18 +38,10 @@ class DeviceDetailBloc {
       }
       isUpdateProperty = false;
       var jsonData = json.decode(data.message);
-      updateProperty(jsonData['name'], jsonData['value']);
+      updateProperty(jsonData);
       loadingSubject.sink.add(false);
     });
     await getDetail(deviceId);
-
-    // updatePropertySubject
-    //   .listen((name) async {
-    //     BaseData data = await execCommand(name); 
-    //     if (data.code != 200) {
-    //        showToast(data.msg);
-    //     }
-    //   });
 
     loadingSubject.sink.add(false);
     // loadingSubject.sink.add(false);
@@ -60,18 +53,12 @@ class DeviceDetailBloc {
   }
 
 
-  void updateProperty(String name, String value) {
+  void updateProperty(var jsonData) {
     print("****updateProperty***");
-    print(name);
-    print(value);
     loadingSubject.add(false);
-    if (name == "power") {
-      _detailSubject.value.power = value; 
-    } else if (name == "mode") {
-      _detailSubject.value.mode = value;
-    } else if (name == "temperture") {
-      _detailSubject.value.temperature = int.parse(value);
-    }
+    _detailSubject.value.power = jsonData["power"]; 
+    _detailSubject.value.mode = jsonData["mode"];
+    _detailSubject.value.temperature = jsonData["temperature"];
     _detailSubject.sink.add(_detailSubject.value);
   }
 
@@ -90,19 +77,40 @@ class DeviceDetailBloc {
     _pageStateSubject.listen(listener);
   }
 
-  subTemperature() async {
-    BaseData data = await execCommand((temperature - 1).toString());
-    if (data.code == 200) {
-      temperature = temperature - 1;
+  funBtnClick(String name) async {
+    int mode = modeValue(name);
+    await execCommand("mode", mode);
+  }
+
+  modeValue(String name) {
+    switch(name){
+      case "clod": return MODE_COOL;
+      case "hot":  return MODE_HEAT;
+      case "wind": return MODE_FAN;
+      case "wet": return MODE_DRY;
     }
+    return MODE_COOL;
+  }
+
+  powerOn() async {
+    await execCommand("power", POWER_ON);
+  }
+
+  powerOff() async {
+    await execCommand("power", POWER_OFF);
+  }
+
+  subTemperature() async {
+    await execCommand("temperature", temperature - 1);
   }
 
   addTemperature() async {
-    await execCommand((temperature + 1).toString());
+    await execCommand("temperature", temperature + 1);
     // updatePropertySubject.add();
   }
 
-  execCommand(String value) async {
+
+  execCommand(String name, int value) async {
     if (isUpdateProperty) {
       return BaseData(code: 500, msg: "正在等上一个命令响应");
     } 
@@ -114,21 +122,15 @@ class DeviceDetailBloc {
         loadingSubject.add(false); 
     });
     int deviceId = _detailSubject.value.id;
-    CommandData command = getCommand(value);
-    if (command != null) {
-      var res =  await _api.execCommand(deviceId, command.id);
-      return BaseData(code: res.code, msg: res.msg);
-    } else {
-      return BaseData(code: 500, msg: "command not found");
-    }
-  }
+    var status = {};
+    status['power'] = power; 
+    status['mode'] = _detailSubject.value.mode;
+    status['temperature'] = _detailSubject.value.temperature;
 
-  getCommand(String value) {
-    for (CommandData command in _detailSubject.value.commands) {
-      if (command.value == value) {
-        return command;
-      }
-    }
+    status[name] = value;
+    var res =  await _api.execCommand(deviceId, status);
+    return BaseData(code: res.code, msg: res.msg);
+
   }
 
   BehaviorSubject<DeviceDetailData> get detailSubject => _detailSubject;
@@ -138,14 +140,14 @@ class DeviceDetailBloc {
     _detailSubject.add(detailSubject.value);
   }
 
-  String get power => _detailSubject.value.power;
-  set curStatus(String s) {
+  int get power => _detailSubject.value.power;
+  set curStatus(int s) {
     _detailSubject.value.power = s;
     _detailSubject.sink.add(_detailSubject.value);
   }
 
-  String get mode => _detailSubject.value.mode;
-  set mode(String name) {
+  int get mode => _detailSubject.value.mode;
+  set mode(int name) {
     _detailSubject.value.mode = name;
     _detailSubject.sink.add(_detailSubject.value);
   }

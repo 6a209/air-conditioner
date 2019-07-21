@@ -10,7 +10,8 @@ class DeviceDetailApi {
      return await IRHTTP().requestPost(DETAIL_PATH, data: {"deviceId": deviceId});
   }
 
-  execCommand(int deviceId, int commandId) {
-     return IRHTTP().requestPost(COMMAND_PATH, data: {"deviceId": deviceId, "commandId": commandId});
+  execCommand(int deviceId, Map status) {
+    status["deviceId"] = deviceId;
+    return IRHTTP().requestPost(COMMAND_PATH, data: status);
   }
 }

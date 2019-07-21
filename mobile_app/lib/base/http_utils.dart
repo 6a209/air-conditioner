@@ -11,7 +11,7 @@ class IRHTTP {
   Dio dio = new Dio();
 
   IRHTTP._createInstance() {
-    dio.options.baseUrl = "http://127.0.0.1:7001";   
+    dio.options.baseUrl = "http://192.168.4.215:7001";   
     dio.options.connectTimeout = 10000;
     dio.options.receiveTimeout = 15000;
 
@@ -45,7 +45,7 @@ class IRHTTP {
       print(httpResponse.msg);
     } on DioError catch(e) {
       print("dio error");
-      print(e);
+      print(e.stackTrace);
       if(e.response != null) {
         httpResponse.code = 500;    
         httpResponse.msg = "server error";    

@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/base/mqtt_utils.dart';
+import 'package:mobile_app/device/pages/brand_list.dart';
+import 'package:mobile_app/device/pages/brand_mode.dart';
 import 'package:mobile_app/index/pages/about.dart';
 import 'package:mobile_app/user/login.dart';
 import 'package:mobile_app/user/user_manager.dart';
@@ -60,6 +62,10 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (context) => new MyTabs());
           } else if (settings.name == '/login') {
             return MaterialPageRoute(builder: (context) => new LoginPage());
+          } else if (settings.name == '/brand') {
+            return MaterialPageRoute(builder: (context) => new BrandPage(argu["deviceId"]));
+          } else if (settings.name == '/brand/mode') {
+            return MaterialPageRoute(builder: (context) => new BrandModePage(argu['name'], argu['brandId'], argu["deviceId"]));
           } else if (settings.name == '/about') {
             return MaterialPageRoute(
                 builder: (context) =>

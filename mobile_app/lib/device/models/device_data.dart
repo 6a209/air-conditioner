@@ -15,11 +15,11 @@ class DeviceDetailData  {
   String detailImage;
   String name;
   int temperature;
-  String mode;
+  int mode;
   // on off
-  String power;
+  int power;
 
-  List<CommandData> commands;
+  // List<CommandData> commands;
 
   DeviceDetailData({
     this.deviceName, 
@@ -29,21 +29,18 @@ class DeviceDetailData  {
     this.detailImage,
     this.name,
     temperature = 18,
-    this.mode = 'code',
-    this.power = 'off',
-    this.commands}) {
+    this.mode = 0,
+    this.power = 0}) {
 
       if (temperature == null) {
         temperature = 18;
       }
       if (mode == null) {
-        mode = 'code';
+        mode = 0;
       }
       if (power == null) {
-        power = 'off';
+        power = 0;
       }
-      print("t-->>>>>>>>>>>");
-      print(temperature);
       this.temperature = temperature;
       this.mode = mode;
       this.power = power;
