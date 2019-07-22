@@ -46,6 +46,8 @@ class UserManager {
     }
   }
 
+  String get topic => userData.topic; 
+
   Future<bool> login(String mobile, String password) async {
     print("****__>>>>>");
     print(mobile);

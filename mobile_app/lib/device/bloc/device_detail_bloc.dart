@@ -7,6 +7,7 @@ import 'package:mobile_app/base/base_page.dart';
 import 'package:mobile_app/base/toast.dart';
 import 'package:mobile_app/device/models/command_data.dart';
 import 'package:mobile_app/device/models/device_data.dart';
+import 'package:mobile_app/user/user_manager.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:mobile_app/device/api/device_detail.dart';
@@ -28,7 +29,8 @@ class DeviceDetailBloc {
   void init(int deviceId) async {
     loadingSubject.sink.add(true);
     print("loadingSubject => true");
-    topic = "user/6a209/property/update";
+    String topic = UserManager.instance().topic;
+    topic = "user/$topic/property/update";
     MqttManager.instance().subscribe(topic, MqttQos.atMostOnce);
     MqttManager.instance().messageSubject.where((data) {
       return data.topic == topic;
