@@ -51,13 +51,13 @@ class BrandPageState extends State<BrandPage> {
     return new Scaffold(
         backgroundColor: Color(0xffEFEFEF),
         appBar: new AppBar(actions: <Widget>[
-          new FlatButton(
-            child: Text(
-              "自定义",
-              style: TextStyle(color: Colors.white),
-            ),
-            onPressed: () {},
-          )
+          // new FlatButton(
+          //   child: Text(
+          //     "自定义",
+          //     style: TextStyle(color: Colors.white),
+          //   ),
+          //   onPressed: () {},
+          // )
         ], title: new Text("品牌列表"), backgroundColor: Colors.blueAccent),
         body: Stack(
           children: <Widget>[

@@ -55,13 +55,13 @@ class BrandModePageState extends State<BrandModePage> {
           appBar: AppBar(
             title: Text(widget.name),
             actions: <Widget>[
-              FlatButton(
-                child: Text(
-                  "自定义",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {},
-              )
+              // FlatButton(
+              //   child: Text(
+              //     "自定义",
+              //     style: TextStyle(color: Colors.white),
+              //   ),
+              //   onPressed: () {},
+              // )
             ],
             bottom: TabBar(
                 indicatorPadding: EdgeInsets.only(top: 8, left: 8, right: 8),
