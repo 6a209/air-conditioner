@@ -8,7 +8,7 @@ class DeviceService extends Service {
 
 
   async getUserDevice(uid) {
-    let userDevice = await this.app.mysql.select('userdevice', { where: { id: uid } })
+    let userDevice = await this.app.mysql.select('userdevice', { where: { uid: uid } })
     console.log(userDevice)
     const deviceIds = []
     for (const item of userDevice) {
@@ -18,7 +18,14 @@ class DeviceService extends Service {
     return userDevice
   }
 
+  async createDevice(deviceName, productKey, secreKey) {
+    const result = await this.app.mysql.insert('device', { deviceName, productKey, secreKey })
+    return result;
+  }
+
   async updateDeviceName(deviceId, name) {
+    console.log("updateDeviceName")
+    console.log(deviceId, name)
     const row = {
       id: deviceId,
       name: name
@@ -53,6 +60,23 @@ class DeviceService extends Service {
     }
     const result = await this.app.mysql.insert('userdevice', { uid, deviceId: item.id })
     return { code: 200, data: { uid, deviceId: item.id } }
+  }
+
+  async bindBrandDevice({uid, deviceId, name, brand, brandMode}) {
+    const isBind = await this.app.mysql.get('userdevice', { uid, deviceId })
+    if (isBind) {
+      return { code: 500, msg: "设备已经被绑定过了" }
+    }
+
+    let result = await this.service.product.createProduct(uid, {brand, brand_mode: brandMode, type: 0})
+    await this.app.mysql.insert("userdevice", {uid, deviceId})
+    const row = {
+      id: deviceId, 
+      name: name,
+      productId: result.pid 
+    }
+    await this.app.mysql.update('device', row)
+    return {code: 200, msg: ""}
   }
 
   async removeBind(uid, deviceId) {
