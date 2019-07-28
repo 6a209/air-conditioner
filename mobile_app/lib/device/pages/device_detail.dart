@@ -5,12 +5,12 @@ import 'package:mobile_app/device/models/device_data.dart';
 import '../bloc/device_detail_bloc.dart';
 import 'package:mobile_app/base/base_widget.dart';
 
+
 class DeviceDetailPage extends StatefulWidget {
   final int deviceId;
   final int pid;
-  String name = "空调";
 
-  DeviceDetailPage({Key key, this.pid, this.deviceId, this.name})
+  DeviceDetailPage({Key key, this.pid, this.deviceId})
       : super(key: key);
 
   @override
@@ -19,12 +19,15 @@ class DeviceDetailPage extends StatefulWidget {
 
 class DeviceDetailState extends State<DeviceDetailPage> {
   bool showLoading = true;
+  TextEditingController controller;
+  static final String DETAIL_IMG = "https://irremote-1253860771.cos.ap-chengdu.myqcloud.com/air_icon.png"; 
 
   @override
   void initState() {
     super.initState();
-    
-    deviceDetailBloc.init(widget.deviceId);
+    controller = new TextEditingController();
+
+    deviceDetailBloc.init(widget.deviceId, context);
     deviceDetailBloc.setPageStateChangeListener((BasePageState pageState) {
       if (pageState == BasePageState.SHOW_LOADING) {
         showLoading = true;
@@ -32,7 +35,6 @@ class DeviceDetailState extends State<DeviceDetailPage> {
         showLoading = false;
       }
     });
-
   }
 
   @override
@@ -55,15 +57,14 @@ class DeviceDetailState extends State<DeviceDetailPage> {
               }
             }),
         StreamBuilder<bool>(
-          stream: deviceDetailBloc.loadingSubject.stream,
-          initialData: false,
-          builder: (context, snapshot){
-            print("loading");
-            print(snapshot.data);
-            // return LoadingWidget(show: true);
-            return LoadingWidget(show: snapshot.data);
-          }
-        ),
+            stream: deviceDetailBloc.loadingSubject.stream,
+            initialData: false,
+            builder: (context, snapshot) {
+              print("loading");
+              print(snapshot.data);
+              // return LoadingWidget(show: true);
+              return LoadingWidget(show: snapshot.data);
+            }),
       ],
     );
   }
@@ -71,15 +72,43 @@ class DeviceDetailState extends State<DeviceDetailPage> {
   Widget _deviceDetail(DeviceDetailData data) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.name),
+        title: Text(data.name),
         actions: <Widget>[
-          IconButton(
-            icon: new Icon(Icons.more_horiz),
-            onPressed: () {},
-          )
+          _popMenu(),
         ],
       ),
       body: body(data),
+    );
+  }
+
+  Widget _popMenu() {
+    return new PopupMenuButton(
+      icon: new Icon(Icons.more_horiz),
+      itemBuilder: (BuildContext context) {
+        List<PopupMenuItem<String>> items = new List(); 
+        items.add(PopupMenuItem(
+          value: "rename",
+          child: new Text("修改名称"),
+        ));
+
+        items.add(PopupMenuItem(
+          value: "delete",
+          child: new Text("删除该设备"),
+        ));
+        return items;
+      },
+      onSelected: (String value) {
+        switch (value) {
+          case "rename":
+            updateName(context);
+            break;
+          case "delete":
+            confirmDelete(context);
+            break;
+          default:
+            break;
+        }
+      },
     );
   }
 
@@ -88,11 +117,10 @@ class DeviceDetailState extends State<DeviceDetailPage> {
     print("curTemperature");
     print(curTemperature);
     List<Widget> list = List();
-    print(deviceData.detailImage);
     list.add(
       Container(
           margin: EdgeInsets.all(96),
-          child: Image.network(deviceData.detailImage, fit: BoxFit.contain)),
+          child: Image.network(DETAIL_IMG, fit: BoxFit.contain)),
     );
     list.add(Expanded(
       child: Container(
@@ -113,14 +141,19 @@ class DeviceDetailState extends State<DeviceDetailPage> {
       width: 192,
       height: 48,
       child: FlatButton(
-        child: Text(deviceData.power == POWER_ON ? "关闭" : "打开", style: TextStyle(color: Colors.white),),
-        color: deviceData.power == POWER_ON ? Colors.blueAccent : Colors.blueGrey,
+        child: Text(
+          deviceData.power == POWER_ON ? "关闭" : "打开",
+          style: TextStyle(color: Colors.white),
+        ),
+        color:
+            deviceData.power == POWER_ON ? Colors.blueAccent : Colors.blueGrey,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
         onPressed: () {
-          deviceData.power == POWER_ON ? 
-            deviceDetailBloc.powerOff() : deviceDetailBloc.powerOn(); 
+          deviceData.power == POWER_ON
+              ? deviceDetailBloc.powerOff()
+              : deviceDetailBloc.powerOn();
         },
       ),
     ));
@@ -141,8 +174,8 @@ class DeviceDetailState extends State<DeviceDetailPage> {
               deviceDetailBloc.subTemperature();
             },
           ),
-          Expanded(child: 
-          Slider(
+          Expanded(
+              child: Slider(
             value: deviceData.temperature.toDouble(),
             onChanged: (newValue) {},
             min: 16.0,
@@ -177,13 +210,63 @@ class DeviceDetailState extends State<DeviceDetailPage> {
   Widget funBtn(String name) {
     bool isSelect = deviceDetailBloc.modeValue(name) == deviceDetailBloc.mode;
     return GestureDetector(
-      child: ImageIcon(
-        AssetImage("assets/" + name + ".png"),
-        size: 64,
-        color: isSelect ? Colors.blueAccent : Colors.grey, 
-      ),
-      onTap: () {
-        deviceDetailBloc.funBtnClick(name);        
-      });
+        child: ImageIcon(
+          AssetImage("assets/" + name + ".png"),
+          size: 64,
+          color: isSelect ? Colors.blueAccent : Colors.grey,
+        ),
+        onTap: () {
+          deviceDetailBloc.funBtnClick(name);
+        });
+  }
+
+  void confirmDelete(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("确定删除这个设备么？"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("取消"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text("确定"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  deviceDetailBloc.deleteDevice(widget.deviceId);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  void updateName(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("修改设备名称"),
+            content: TextField(controller: controller),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("取消"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(child: Text("确定"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  deviceDetailBloc.updateDeviceName(widget.deviceId, controller.text);
+                },
+              )
+            ],
+          );
+        });
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mobile_app/base/base_widget.dart';
@@ -55,13 +57,13 @@ class BrandModePageState extends State<BrandModePage> {
           appBar: AppBar(
             title: Text(widget.name),
             actions: <Widget>[
-              FlatButton(
-                child: Text(
-                  "自定义",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {},
-              )
+              // FlatButton(
+              //   child: Text(
+              //     "自定义",
+              //     style: TextStyle(color: Colors.white),
+              //   ),
+              //   onPressed: () {},
+              // )
             ],
             bottom: TabBar(
                 indicatorPadding: EdgeInsets.only(top: 8, left: 8, right: 8),
@@ -164,7 +166,7 @@ class BrandModePageState extends State<BrandModePage> {
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: new Text("创建一个产品"),
+              title: new Text("请输入设备名称"),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -173,7 +175,7 @@ class BrandModePageState extends State<BrandModePage> {
                   TextField(
                     controller: nameController,
                     decoration: InputDecoration(
-                      hintText: "请输入名称",
+                      hintText: "请输入设备名称",
                     ),
                   ),
                 ],
@@ -188,7 +190,7 @@ class BrandModePageState extends State<BrandModePage> {
                 FlatButton(
                   child: Text("保存"),
                   onPressed: () {
-                    createProduct(context, nameController.text, "", "", 0);
+                    bindBrandDevice(context, widget.deviceId, nameController.text);
                     Navigator.pop(context);
                   },
                 )
@@ -196,24 +198,42 @@ class BrandModePageState extends State<BrandModePage> {
             ));
   }
 
-  void createProduct(BuildContext context, String name, String icon,
-      String detailImage, int type) async {
-    BrandMode brandMode = brandModes[selectIdx];
-    var response = await IRHTTP().post('/product/create', data: {
-      "product": {
-        "name": name,
-        "icon": icon,
-        "detailImage": detailImage,
-        "brand": widget.name,
-        "brand_mode": brandMode.mode, 
-        "type": type
-      }
-    });
+  void bindBrandDevice(BuildContext context, int deviceId, String name) async {
 
-    if (response.data['code'] == 200) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/index', ModalRoute.withName('/index')); 
-    }
+      String brand = widget.name; 
+      String brandMode = brandModes[selectIdx].mode;
+      HTTPResponse response = await IRHTTP().requestPost('/device/bindBrandDevice', data: {
+        "deviceId": deviceId,
+        "name": name,
+        "brand": brand,
+        "brandMode": brandMode,
+      });
+
+      if (200 == response.code) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/index', ModalRoute.withName('/index')); 
+      } else {
+        showToast(response.msg);
+      }
   }
+
+  // void createProduct(BuildContext context, String name, String icon,
+      // String detailImage, int type) async {
+    // BrandMode brandMode = brandModes[selectIdx];
+    // var response = await IRHTTP().post('/product/create', data: {
+      // "product": {
+        // "name": name,
+        // "icon": icon,
+        // "detailImage": detailImage,
+        // "brand": widget.name,
+        // "brand_mode": brandMode.mode, 
+        // "type": type
+      // }
+    // });
+// 
+    // if (response.data['code'] == 200) {
+      // Navigator.of(context).pushNamedAndRemoveUntil('/index', ModalRoute.withName('/index')); 
+    // }
+  // }
 }
 
 class FunTestWidget extends StatelessWidget {

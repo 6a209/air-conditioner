@@ -2,12 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/base/mqtt_utils.dart';
+import 'package:mobile_app/user/user_manager.dart';
 import 'dart:convert';
-import '../models/product_data.dart';
 import '../models/command_data.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import '../../base/http_utils.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../base/toast.dart';
 
@@ -27,12 +26,15 @@ class ProductDetailState extends State<ProductDetail> {
   CommandsData commandsData = new CommandsData(data: List());
   TextEditingController nameController = TextEditingController();
   bool isUpdate = false;
+  String topic;
 
   // final MqttClient client = MqttClient("192.168.4.92", '');
 
   @override
   void initState() {
     super.initState();
+    String userTopic = UserManager.instance().topic;
+    topic = "user/$userTopic/study"; 
     initMqtt();
     initData();
   }
@@ -45,7 +47,7 @@ class ProductDetailState extends State<ProductDetail> {
   void initMqtt() {
     MqttManager.instance().messageSubject.where((MqttData data) {
 
-      if (data.topic == "user/6a209/study") {
+      if (data.topic == topic) {
         return true;
       }
     }).listen((MqttData data) {
@@ -218,7 +220,7 @@ class ProductDetailState extends State<ProductDetail> {
   }
 
   waitDialog() {
-    MqttManager.instance().subscribe("user/6a209/study", MqttQos.atMostOnce);
+    MqttManager.instance().subscribe(topic, MqttQos.atMostOnce);
 
     showDialog(
         context: context,
@@ -244,7 +246,7 @@ class ProductDetailState extends State<ProductDetail> {
 
   void cancelWait() {
     Navigator.pop(context);
-    MqttManager.instance().unsubscribe("user/6a209/study");
+    MqttManager.instance().unsubscribe(topic);
   }
 }
 

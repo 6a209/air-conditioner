@@ -19,7 +19,7 @@ class ProductService extends Service {
     let result = await this.app.mysql.insert('product', product)
     const pid = result.insertId
     result = await this.app.mysql.insert('userproduct', {uid, pid})
-    return result
+    return {pid} 
   }
 
   async updateProduct(product) {

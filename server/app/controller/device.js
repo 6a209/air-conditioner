@@ -7,7 +7,7 @@ class DeviceController extends Controller {
 
   async bind() {
     const { app, ctx } = this
-    const uid = this.getUid() 
+    const uid = this.getUid()
     // const deviceId = ctx.request.body.deviceId
     const pk = ctx.request.body.pk
     const dn = ctx.request.body.dn
@@ -16,33 +16,50 @@ class DeviceController extends Controller {
       ctx.body = ctx.helper.successRes(result.code, result.data)
     } else {
       ctx.body = ctx.helper.failRes(result.code, result.msg)
-    } 
+    }
   }
 
   async unbind() {
-      const { app, ctx } = this
-      const uid = this.getUid()
-      const deviceId = ctx.request.body.deviceId
-      const result = await this.service.device.removeBind(uid, deviceId) 
-      if (result) {
-        ctx.body = ctx.helper.successRes(200)
-      } else {
-        ctx.body = ctx.helper.failRes(500, 'dberror')
-      }
+    const { app, ctx } = this
+    const uid = this.getUid()
+    const deviceId = ctx.request.body.deviceId
+    const result = await this.service.device.removeBind(uid, deviceId)
+    if (result) {
+      ctx.body = ctx.helper.successRes(200)
+    } else {
+      ctx.body = ctx.helper.failRes(500, 'dberror')
+    }
   }
 
-  async setDeviceAlias() {
-      const { app, ctx } = this
-      const uid = this.getUid()
-      const deviceId = ctx.request.body.deviceId
-      const name = ctx.request.body.name
-      const result = await this.service.device.hasDevice(uid, deviceId)
-      if (!result) {
-        ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
-        return
-      }
-      this.service.device.updateDeviceName(deviceId, name)
+  async bindBrandDevice() {
+    const { app, ctx } = this
+    const uid = this.getUid()
+    const deviceId = ctx.request.body.deviceId
+    const name = ctx.request.body.name
+    const brand = ctx.request.body.brand
+    const brandMode = ctx.request.body.brandMode
+
+    const result = await this.service.device.bindBrandDevice({uid, deviceId, name, brand, brandMode})
+    if (200 == result.code) {
       ctx.body = ctx.helper.successRes(200)
+    } else {
+      ctx.body = ctx.helper.failRes(500, result.msg)
+    }
+  }
+
+  async updateDeviceName() {
+    const { app, ctx } = this
+    console.log("this.updateDeviceName")
+    const uid = this.getUid()
+    const deviceId = ctx.request.body.deviceId
+    const name = ctx.request.body.name
+    const result = await this.service.device.hasDevice(uid, deviceId)
+    if (!result) {
+      ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
+      return
+    }
+    this.service.device.updateDeviceName(deviceId, name)
+    ctx.body = ctx.helper.successRes(200)
   }
 
   /**
@@ -51,16 +68,16 @@ class DeviceController extends Controller {
   async list() {
     const { app, ctx } = this
     const uid = this.getUid()
-    const result = await this.service.device.getUserDevice(uid) 
-    const formatResult = [] 
+    const result = await this.service.device.getUserDevice(uid)
+    const formatResult = []
     for (const item of result) {
       const formatItem = {}
-      formatItem['productId'] = item.productId 
+      formatItem['productId'] = item.productId
       formatItem['icon'] = item.icon
       formatItem['name'] = item.name
       formatItem['deviceId'] = item.id
       formatResult.push(formatItem)
-    } 
+    }
     ctx.body = ctx.helper.successRes(200, formatResult)
   }
 
@@ -108,7 +125,7 @@ class DeviceController extends Controller {
   async command() {
     const { app, ctx } = this
     const uid = this.getUid()
-    const deviceId = ctx.request.body.deviceId 
+    const deviceId = ctx.request.body.deviceId
     let result = await this.service.device.hasDevice(uid, deviceId)
     if (!result) {
       ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')

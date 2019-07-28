@@ -55,8 +55,7 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
                 builder: (context) => new DeviceDetailPage(
                       pid: argu['pid'],
-                      deviceId: argu['deviceId'],
-                      name: argu['name'],
+                      deviceId: argu['deviceId']
                     ));
           } else if (settings.name == '/index') {
             return MaterialPageRoute(builder: (context) => new MyTabs());

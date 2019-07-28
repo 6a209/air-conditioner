@@ -11,8 +11,6 @@ class DeviceDetailData  {
   String deviceName;
   String productKey; 
   int productId;
-  String icon;
-  String detailImage;
   String name;
   int temperature;
   int mode;
@@ -25,8 +23,6 @@ class DeviceDetailData  {
     this.deviceName, 
     this.productKey, 
     this.productId, 
-    this.icon,
-    this.detailImage,
     this.name,
     temperature = 18,
     this.mode = 0,

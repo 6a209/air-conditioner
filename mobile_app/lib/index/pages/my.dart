@@ -24,7 +24,7 @@ class MyPageState extends State<MyPage> {
         url: "mailto:6a209qt@gmail.com?subject=智能红外");
     var about = MyActionData(text: "关于", icon: Icons.info, url: "xxxx");
 
-    _listData.add(product);
+    // _listData.add(product);
     _listData.add(feedback);
     _listData.add(about);
   }

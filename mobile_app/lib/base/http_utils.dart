@@ -45,6 +45,7 @@ class IRHTTP {
       print(httpResponse.msg);
     } on DioError catch(e) {
       print("dio error");
+      print(e.message);
       print(e.stackTrace);
       if(e.response != null) {
         httpResponse.code = 500;    
