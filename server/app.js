@@ -5,9 +5,7 @@ console.log("connect!!!!!")
 class AppBootHook {
   constructor(app) {
     this.app = app
-    this.client = mqtt.connect('mqtt://192.168.4.92:1883', {
-      clientId: "egg" + Date.now()
-    })
+    this.client = mqtt.connect(this.app.config.mqtt.host)
 
     this.app.client = this.client
   }
@@ -59,6 +57,18 @@ class AppBootHook {
         console.log(status)
         that.updateStatus(pk, dn, status)
         that.publishStatus2App(pk, dn, message)   
+      } else if (topic.startsWith('$SYS/brokers') && topic.endsWith("/disconnected")) {
+        // device offline
+        console.log("--- offline ---")
+        console.log(topic) 
+        let array = topic.split("/")
+        if (array.length > 2 ) {
+          array = array[2].split("_")
+          pk = array[0]
+          dn = array[1]
+          const status = {online: 0}
+          that.updateStatus(pk, dn, status)
+        }
       }
     })
   }
@@ -82,8 +92,8 @@ class AppBootHook {
   async publishIRCode2App(pk, dn, message) {
     const ctx = await this.app.createAnonymousContext()
     let topic = await ctx.service.device.getTopicByDevice(pk, dn)
-    topic = "user/" + topic + "/study"
     if (topic) {
+      topic = "user/" + topic + "/study"
       console.log("publishIRCode2App")
       console.log(topic)
       console.log(message)
@@ -96,9 +106,9 @@ class AppBootHook {
     console.log(message)
     const ctx = await this.app.createAnonymousContext()
     let topic = await ctx.service.device.getTopicByDevice(pk, dn)
-    topic = 'user/' + topic + '/property/update'; 
     console.log(topic)
     if (topic) {
+      topic = 'user/' + topic + '/property/update'; 
       this.client.publish(topic, message)
     }
   }
@@ -125,6 +135,17 @@ class AppBootHook {
       }
     })
 
+    this.client.subscribe("$SYS/brokers/+/clients/+/disconnected", (err) => {
+      if (err) {
+        console.log(err)
+      }
+    })
+
+    // this.client.subscribe("$SYS/brokers/#", (err) => {
+    //   if (err) {
+    //     console.log(err)
+    //   }
+    // })
     // client.subscribe('')
 
   }
