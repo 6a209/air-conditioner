@@ -11,11 +11,11 @@ class IRHTTP {
   Dio dio = new Dio();
 
   IRHTTP._createInstance() {
-    dio.options.baseUrl = "http://192.168.4.215:7001";   
+    dio.options.baseUrl = "http://air.6a209.club:7001";   
     dio.options.connectTimeout = 10000;
     dio.options.receiveTimeout = 15000;
 
-    login("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsImlhdCI6MTU1NDYxNzU3NX0.ulTvboXUIneW7qVuLb3YXkOU_EANyYFwWiZ5yh7yKOk");
+    // login("Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjEsImlhdCI6MTU1NDYxNzU3NX0.ulTvboXUIneW7qVuLb3YXkOU_EANyYFwWiZ5yh7yKOk");
   }
 
   void login(jwtToken) {

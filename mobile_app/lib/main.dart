@@ -62,9 +62,9 @@ class MyApp extends StatelessWidget {
           } else if (settings.name == '/login') {
             return MaterialPageRoute(builder: (context) => new LoginPage());
           } else if (settings.name == '/brand') {
-            return MaterialPageRoute(builder: (context) => new BrandPage(argu["deviceId"]));
+            return MaterialPageRoute(builder: (context) => new BrandPage(argu["pk"], argu["dn"]));
           } else if (settings.name == '/brand/mode') {
-            return MaterialPageRoute(builder: (context) => new BrandModePage(argu['name'], argu['brandId'], argu["deviceId"]));
+            return MaterialPageRoute(builder: (context) => new BrandModePage(argu['name'], argu['brandId'], argu["pk"], argu["dn"]));
           } else if (settings.name == '/about') {
             return MaterialPageRoute(
                 builder: (context) =>

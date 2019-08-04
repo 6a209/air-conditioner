@@ -5,9 +5,10 @@ import 'package:mobile_app/base/toast.dart';
 import 'package:mobile_app/device/models/brand_data.dart';
 
 class BrandPage extends StatefulWidget {
-  int deviceId;
+  String pk;
+  String dn;
 
-  BrandPage(this.deviceId);
+  BrandPage(this.pk, this.dn);
 
   @override
   BrandPageState createState() => new BrandPageState();
@@ -130,7 +131,7 @@ class BrandPageState extends State<BrandPage> {
           child: container,
           onTap: () {
             Navigator.of(context).pushNamed('/brand/mode',
-                arguments: {"deviceId": widget.deviceId, "brandId": item.id, "name": item.name});
+                arguments: {"pk": widget.pk, "dn": widget.dn, "brandId": item.id, "name": item.name});
           },
         );
       },
