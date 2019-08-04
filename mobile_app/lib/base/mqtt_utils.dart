@@ -26,7 +26,7 @@ class MqttManager {
   }
 
   void init() {
-    client = MqttClient("192.168.4.92", '');
+    client = MqttClient("air.6a209.club", '');
     client.onConnected = onMqttConnected;
     final MqttConnectMessage connMess = MqttConnectMessage()
         .withClientIdentifier('Mqtt_MyClientUniqueId')
