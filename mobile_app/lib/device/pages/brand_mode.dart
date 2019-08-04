@@ -12,9 +12,10 @@ import 'package:mobile_app/device/models/command_data.dart';
 class BrandModePage extends StatefulWidget {
   String name;
   int brandId;
-  int deviceId;
+  String pk;
+  String dn;
 
-  BrandModePage(this.name, this.brandId, this.deviceId);
+  BrandModePage(this.name, this.brandId, this.pk, this.dn);
 
   @override
   BrandModePageState createState() => new BrandModePageState();
@@ -130,12 +131,12 @@ class BrandModePageState extends State<BrandModePage> {
   void funClick(AirCommand command) {
     BrandMode brandMode = brandModes[selectIdx];
     print(brandMode.mode);
-    print(widget.deviceId);
     IRHTTP().requestPost("/device/command", data: {
       "power": command.power,
       "mode": command.mode,
       "brandMode": brandMode.mode,
-      "deviceId": widget.deviceId
+      "pk": widget.pk,
+      "dn": widget.dn
     });
   }
 
@@ -190,7 +191,7 @@ class BrandModePageState extends State<BrandModePage> {
                 FlatButton(
                   child: Text("保存"),
                   onPressed: () {
-                    bindBrandDevice(context, widget.deviceId, nameController.text);
+                    bindBrandDevice(context, widget.pk, widget.dn, nameController.text);
                     Navigator.pop(context);
                   },
                 )
@@ -198,12 +199,13 @@ class BrandModePageState extends State<BrandModePage> {
             ));
   }
 
-  void bindBrandDevice(BuildContext context, int deviceId, String name) async {
+  void bindBrandDevice(BuildContext context, String pk, String dn, String name) async {
 
       String brand = widget.name; 
       String brandMode = brandModes[selectIdx].mode;
       HTTPResponse response = await IRHTTP().requestPost('/device/bindBrandDevice', data: {
-        "deviceId": deviceId,
+        "pk": pk,
+        "dn": dn,
         "name": name,
         "brand": brand,
         "brandMode": brandMode,
@@ -215,25 +217,6 @@ class BrandModePageState extends State<BrandModePage> {
         showToast(response.msg);
       }
   }
-
-  // void createProduct(BuildContext context, String name, String icon,
-      // String detailImage, int type) async {
-    // BrandMode brandMode = brandModes[selectIdx];
-    // var response = await IRHTTP().post('/product/create', data: {
-      // "product": {
-        // "name": name,
-        // "icon": icon,
-        // "detailImage": detailImage,
-        // "brand": widget.name,
-        // "brand_mode": brandMode.mode, 
-        // "type": type
-      // }
-    // });
-// 
-    // if (response.data['code'] == 200) {
-      // Navigator.of(context).pushNamedAndRemoveUntil('/index', ModalRoute.withName('/index')); 
-    // }
-  // }
 }
 
 class FunTestWidget extends StatelessWidget {

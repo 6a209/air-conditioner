@@ -152,7 +152,7 @@ class BindPageState extends State<BindPage> {
   }
 
   void bind(DeviceData deviceData) async {
-    Navigator.of(context).pushNamed('/brand', arguments: {"deviceId": 1});
+    Navigator.of(context).pushNamed('/brand', arguments: {"pk": deviceData.pk, "dn": deviceData.dn});
 
     // var response = await IRHTTP().post('/device/bind', data: {"pk": deviceData.pk, "dn": deviceData.dn});
     // print(response);
