@@ -18,6 +18,11 @@ class DeviceService extends Service {
     return userDevice
   }
 
+  async getDeviceByPkDn(pk, dn) {
+    const device = await this.app.mysql.get('device', { productKey: pk, deviceName: dn })
+    return device
+  }
+
   async createDevice(deviceName, productKey, secreKey) {
     const result = await this.app.mysql.insert('device', { deviceName, productKey, secreKey })
     return result;
@@ -35,11 +40,16 @@ class DeviceService extends Service {
 
   async getTopicByDevice(pk, dn) {
     const device = await this.app.mysql.get('device', { productKey: pk, deviceName: dn })
-    if (device) {
-      const uid = await this.app.mysql.get('userdevice', { 'deviceId': device.id })
-      const user = await this.app.mysql.get('user', { id: uid.uid })
-      return user.topic
+    if (!device) {
+      return null 
     }
+    const bindInfo = await this.app.mysql.get('userdevice', { 'deviceId': device.id })
+    if (!bindInfo) {
+      return null 
+    }
+    const user = await this.app.mysql.get('user', { id: bindInfo.uid })
+    return user.topic
+
   }
 
   async hasDevice(uid, deviceId) {
@@ -62,21 +72,23 @@ class DeviceService extends Service {
     return { code: 200, data: { uid, deviceId: item.id } }
   }
 
-  async bindBrandDevice({uid, deviceId, name, brand, brandMode}) {
+  async bindBrandDevice({ uid, pk, dn, name, brand, brandMode }) {
+    const device = await this.getDeviceByPkDn(pk, dn)
+    const deviceId = device.id
     const isBind = await this.app.mysql.get('userdevice', { uid, deviceId })
     if (isBind) {
       return { code: 500, msg: "设备已经被绑定过了" }
     }
 
-    let result = await this.service.product.createProduct(uid, {brand, brand_mode: brandMode, type: 0})
-    await this.app.mysql.insert("userdevice", {uid, deviceId})
+    let result = await this.service.product.createProduct(uid, { brand, brand_mode: brandMode, type: 0 })
+    await this.app.mysql.insert("userdevice", { uid, deviceId })
     const row = {
-      id: deviceId, 
+      id: deviceId,
       name: name,
-      productId: result.pid 
+      productId: result.pid
     }
     await this.app.mysql.update('device', row)
-    return {code: 200, msg: ""}
+    return { code: 200, msg: "" }
   }
 
   async removeBind(uid, deviceId) {
@@ -107,7 +119,7 @@ class DeviceService extends Service {
   }
 
   async executeCommand(commandInfo) {
-    const device = await this.app.mysql.get("device", {id: commandInfo.deviceId})  
+    const device = await this.app.mysql.get("device", { id: commandInfo.deviceId })
     let deviceId = device.id
     // let brandMode = commandInfo.brandMode
     if (device.productId) {
@@ -129,14 +141,14 @@ class DeviceService extends Service {
     const data = fs.readFileSync("./data/irda_" + commandInfo.brandMode + ".bin")
     let irdata = addon.decode(data, commandInfo.power, commandInfo.mode, commandInfo.temperature)
     console.log("--->>>> deviceId" + deviceId)
-    return this._executeCommand({commandInfo, deviceId, irdata})
+    return this._executeCommand({ commandInfo, deviceId, irdata })
   }
 
   async executeCustomCommand(commandInfo, deviceId) {
 
   }
 
-  async _executeCommand({commandInfo, deviceId, irdata}) {
+  async _executeCommand({ commandInfo, deviceId, irdata }) {
 
     const device = await this.app.mysql.get('device', { id: deviceId })
     const key = device.productKey + "/" + device.deviceName
@@ -154,14 +166,14 @@ class DeviceService extends Service {
       return { code: 500, msg: "mqtt server disconnect" }
     }
 
-    const size = irdata.length 
+    const size = irdata.length
     irdata = JSON.stringify(irdata)
-    
+
     const info = {}
     info['power'] = commandInfo.power
     info['mode'] = commandInfo.mode
     info['temperature'] = commandInfo.temperature
-    info['deviceId'] = deviceId 
+    info['deviceId'] = deviceId
     console.log("info ->>>>> ")
     console.log(info)
     const message = JSON.stringify(info) + "&" + irdata + "&" + size
@@ -230,10 +242,15 @@ class DeviceService extends Service {
     console.log("udpate _____ ***** _>>>> status")
     console.log("key:" + key)
     console.log("status: ")
+    if (!status) {
+      status = {}
+    }
     let oldStatus = await this.app.redis.get(key)
     try {
       oldStatus = JSON.parse(oldStatus)
     } catch (e) {
+    }
+    if (!oldStatus) {
       oldStatus = {}
     }
     status = Object.assign(oldStatus, status)

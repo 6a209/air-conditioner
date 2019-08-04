@@ -34,12 +34,13 @@ class DeviceController extends Controller {
   async bindBrandDevice() {
     const { app, ctx } = this
     const uid = this.getUid()
-    const deviceId = ctx.request.body.deviceId
+    const pk = ctx.request.body.pk
+    const dn = ctx.request.body.dn
     const name = ctx.request.body.name
     const brand = ctx.request.body.brand
     const brandMode = ctx.request.body.brandMode
 
-    const result = await this.service.device.bindBrandDevice({uid, deviceId, name, brand, brandMode})
+    const result = await this.service.device.bindBrandDevice({ uid, pk, dn, name, brand, brandMode })
     if (200 == result.code) {
       ctx.body = ctx.helper.successRes(200)
     } else {
@@ -126,12 +127,20 @@ class DeviceController extends Controller {
     const { app, ctx } = this
     const uid = this.getUid()
     const deviceId = ctx.request.body.deviceId
-    let result = await this.service.device.hasDevice(uid, deviceId)
-    if (!result) {
-      ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
-      return
-    }
     const commandInfo = ctx.request.body
+    if (deviceId) {
+      // 用 device id 执行需要校验权限
+      let result = await this.service.device.hasDevice(uid, deviceId)
+      if (!result) {
+        ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
+        return
+      }
+    } else {
+      const pk = ctx.request.body.pk
+      const dn = ctx.request.body.dn
+      const deviceData = await this.service.device.getDeviceByPkDn(pk, dn)
+      commandInfo.deviceId = deviceData.id
+    }
     result = await this.service.device.executeCommand(commandInfo)
 
     if (result.code == 200) {
