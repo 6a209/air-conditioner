@@ -5,7 +5,8 @@
 #include <IRsend.h>
 
 
-#define IR_LED 4  // ESP8266 GPIO pin to use. Recommended: 4 (D2).
+#define IR_LED 4  // D2 
+// #define IR_LED 2  // D4 
 IRsend irsend(IR_LED);  // Set the GPIO to be used to sending the message.
 
 // (D5)
