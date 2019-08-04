@@ -4,13 +4,12 @@
 
 AsyncMqttClient mqttClient;
 
-#define MQTT_HOST IPAddress(192, 168, 4, 92)
+// #define MQTT_HOST IPAddress(192, 168, 4, 92)
+#define MQTT_HOST "air.6a209.club"
 #define PORT 1883
 
 OnMqttConnect onConnect;
 OnMqttMessage onMessage; 
-
-
 
 
 void _onMqttConnect(bool sessionPresent) {
@@ -77,7 +76,7 @@ void onMqttPublish(uint16_t packetId) {
 }
 
 
-void initMqtt(OnMqttConnect connect, OnMqttMessage onMsg) {
+void initMqtt(String clientId, OnMqttConnect connect, OnMqttMessage onMsg) {
 
     onConnect = connect;
     onMessage = onMsg;
@@ -89,7 +88,7 @@ void initMqtt(OnMqttConnect connect, OnMqttMessage onMsg) {
     mqttClient.onMessage(_onMqttMessage);
     mqttClient.onPublish(onMqttPublish);
     mqttClient.setServer(MQTT_HOST, PORT);
-    // mqttClient.setClientId(mqttClientID.c_str());
+    mqttClient.setClientId(clientId.c_str());
     mqttClient.setMaxTopicLength(512);
     mqttClient.setKeepAlive(60);
     // mqttClient.setCredentials(mqttUsername.c_str(), mqttPassword.c_str());
