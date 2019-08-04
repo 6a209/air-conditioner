@@ -20,7 +20,7 @@ class DeviceDetailPage extends StatefulWidget {
 class DeviceDetailState extends State<DeviceDetailPage> {
   bool showLoading = true;
   TextEditingController controller;
-  static final String DETAIL_IMG = "https://irremote-1253860771.cos.ap-chengdu.myqcloud.com/air_icon.png"; 
+  static final String DETAIL_IMG = "https://irremote-1253860771.cos.ap-chengdu.myqcloud.com/big.png"; 
 
   @override
   void initState() {
@@ -119,12 +119,12 @@ class DeviceDetailState extends State<DeviceDetailPage> {
     List<Widget> list = List();
     list.add(
       Container(
-          margin: EdgeInsets.all(96),
+          margin: EdgeInsets.all(80),
           child: Image.network(DETAIL_IMG, fit: BoxFit.contain)),
     );
     list.add(Expanded(
       child: Container(
-          margin: EdgeInsets.only(bottom: 48.0),
+          margin: EdgeInsets.only(bottom: 36.0),
           alignment: Alignment.bottomCenter,
           child: Text(
             "$curTemperature°",
@@ -164,7 +164,7 @@ class DeviceDetailState extends State<DeviceDetailPage> {
 
   Widget temperatureCtrl(DeviceDetailData deviceData) {
     return Container(
-      margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 48.0),
+      margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 36.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
@@ -194,7 +194,7 @@ class DeviceDetailState extends State<DeviceDetailPage> {
 
   Widget functionCtrl(DeviceDetailData deviceData) {
     return Container(
-      margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 48.0),
+      margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 36.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
@@ -260,9 +260,9 @@ class DeviceDetailState extends State<DeviceDetailPage> {
                 },
               ),
               FlatButton(child: Text("确定"),
-                onPressed: () {
-                  Navigator.of(context).pop();
+                onPressed: ()  {
                   deviceDetailBloc.updateDeviceName(widget.deviceId, controller.text);
+                  Navigator.of(context).pop();
                 },
               )
             ],
