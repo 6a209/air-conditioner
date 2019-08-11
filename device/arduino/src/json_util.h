@@ -39,7 +39,6 @@ void json2intArray(String jsonStr, uint16_t arr[], int len) {
   int i =  0;
   while (c != NULL) {
     String s = String(c);
-    Serial.printf("code %d", s.toInt());
     arr[i++] = s.toInt();
     c = strtok(NULL, ",");
   } 

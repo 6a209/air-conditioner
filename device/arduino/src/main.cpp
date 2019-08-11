@@ -13,27 +13,25 @@
 #include "custom_mqtt.h"
 #include <Ticker.h>
 
-String PK = String("IR");
-
-// DN size 16
-String DN = String("E68DEA31-260F-1C");
-// String SK = String("c274761d-9a8c-42c2-992c-0974c512f4d4");
-
-//
-String uid = "uid";
 
 #define UDP_PORT 9876
+
+// Flash btn
+#define RESET_BTN  0
+
+String PK = String("IR");
+// DN size 16
+String DN = String("E68DEA31-260F-1C");
+
+String uid = "uid";
+
 char udpPackage[255]; // buffer for incoming packets
 WiFiUDP udp;
 Ticker UDPTicker;
 
 String mqttTmp = "";
 
-// int curTemperture;
-// // 0 off, 1 on
-// int power;
-// // 0 制冷，1 制热，2 除湿， 3 通风
-// int mode;
+void(* resetFunc) (void) = 0;
 
 void sendUDPBroadcast()
 {
@@ -124,16 +122,22 @@ void setup()
   wifiManager.autoConnect("AutoConnectAP");
   Serial.println("Connected to internet \n");
 
-  udp.begin(UDP_PORT);
-  String clientId = PK + "_" + DN;
-  initMqtt(clientId, onMqttConnect, onMqttMessage);
+  // init mqtt 
+  initMqtt(DN.c_str(), onMqttConnect, onMqttMessage);
+
+  // init irremote 
   initIR();
 
+  // udp broadcast if need
   if (uid.equals("uid"))
   {
+    udp.begin(UDP_PORT);
     // not bind, send broadcast wait bind
     UDPTicker.attach(5, sendUDPBroadcast);
   }
+
+  // init reset btn
+  pinMode(RESET_BTN, INPUT);
 }
 
 
@@ -146,12 +150,32 @@ void onReceiveIRData(uint16_t *rawdata, int len)
   // dumpRawData();
 }
 
+int resetCount = 0;
 
-
-bool test = true;
+void reset() 
+{
+  while(LOW == digitalRead(RESET_BTN)) {
+    delay(200); 
+    resetCount ++;
+    if (resetCount >= 25) {
+      resetCount = 0;
+      WiFi.disconnect();
+      String topic = String("device/unbind/") + PK + "/" + DN;
+      String msg = String("unbind");
+      publishMsg(topic, msg);
+      delay(100); 
+      resetFunc();
+      return;
+    }
+  }
+  resetCount = 0;
+}
 
 void loop()
 {
+
+  reset();
+
   receiveIRData(onReceiveIRData);
 
   int packageSize = udp.parsePacket();
