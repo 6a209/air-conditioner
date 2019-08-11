@@ -23,7 +23,12 @@ class DeviceController extends Controller {
     const { app, ctx } = this
     const uid = this.getUid()
     const deviceId = ctx.request.body.deviceId
-    const result = await this.service.device.removeBind(uid, deviceId)
+    const result = await this.service.device.hasDevice(uid, deviceId)
+    if (!result) {
+      ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
+      return
+    }
+    const result = await this.service.device.unbind(uid, deviceId)
     if (result) {
       ctx.body = ctx.helper.successRes(200)
     } else {
@@ -128,9 +133,10 @@ class DeviceController extends Controller {
     const uid = this.getUid()
     const deviceId = ctx.request.body.deviceId
     const commandInfo = ctx.request.body
+    let result = {}
     if (deviceId) {
       // 用 device id 执行需要校验权限
-      let result = await this.service.device.hasDevice(uid, deviceId)
+      result = await this.service.device.hasDevice(uid, deviceId)
       if (!result) {
         ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
         return
