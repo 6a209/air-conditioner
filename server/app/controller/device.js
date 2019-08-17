@@ -128,6 +128,11 @@ class DeviceController extends Controller {
   //   }
   // }
 
+  async aligenieCommand() {
+    const { app, ctx } = this
+    console.log('aligenieCommand')
+  }
+
   async command() {
     const { app, ctx } = this
     const uid = this.getUid()

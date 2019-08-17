@@ -33,6 +33,11 @@ class UserService extends Service {
     const insertSuccess = result.affectedRows === 1
     return insertSuccess
   }
+
+  async saveAuthorizationCode(client, user, code) {
+    // await this.app.mysql.get('oauth', {})
+    // await this.app.mysql.update('')
+  }
 }
 
 module.exports = UserService
