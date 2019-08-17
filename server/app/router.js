@@ -25,4 +25,10 @@ module.exports = app => {
 
   router.post('/brand/list', controller.brand.brandList);
   router.post('/brand/mode',  controller.brand.modeList);
+
+  router.post('/auth/token', app.oAuth2Server.token());
+  router.get('/auth/authorize', controller.user.authorize)
+  // router.get('/auth/authenticate', app.oAuth2Server.authenticate, 'user.authenticate')
+  // router.post('/aligenie/command', app.oAuth2Server.authenticate, )
+
 };

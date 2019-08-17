@@ -26,6 +26,14 @@ class UserController extends Controller {
       ctx.body = ctx.helper.failRes(500, err.msg)
     }
   }
+
+  async authorize() {
+    const { app, ctx } = this
+    if ("GET" == ctx.request.method) {
+      await ctx.render("index.html") 
+    } else if ("POST" == ctx.request.method) {
+    }
+  }
 }
 
 module.exports = UserController;

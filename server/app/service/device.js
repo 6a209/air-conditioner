@@ -94,10 +94,10 @@ class DeviceService extends Service {
   async unbindByDevice(pk, dn) {
     try {
       await this.app.mysql.beginTransactionScope(async conn => {
-        await conn.delete('userdevice', {deviceId})
-        const device = await conn.get("device", { 'pk': pk, 'dn': dn })
-        delete device['productId']
-        delete device['name']
+        const device = await conn.get('device', {productKey: pk, deviceName: dn})
+        await conn.delete('userdevice', {deviceId: device.id})
+        device['productId'] = null
+        device['name'] = null
         await conn.update('device', device)
       }, this.ctx)
     } catch(e) {
@@ -109,8 +109,8 @@ class DeviceService extends Service {
       await this.app.mysql.beginTransactionScope(async conn => {
         await conn.delete('userdevice', { uid, deviceId })
         const device = await conn.get("device", { 'id': deviceId })
-        delete device['productId']
-        delete device['name']
+        device['productId'] = null
+        device['name'] = null
         await conn.update('device', device)
       }, this.ctx)
     } catch (e) {
@@ -123,11 +123,6 @@ class DeviceService extends Service {
   async getDetail(deviceId) {
     console.log('--->> deviceId' + deviceId)
     let result = await this.app.mysql.get('device', { 'id': deviceId })
-    // const productId = result.productId
-    // const commands = await this.app.mysql.select('command', { where: { 'productId': productId }})
-    // result['commands'] = commands
-    // get device status 
-
     console.log("get detail")
     console.log(result)
     const key = result.productKey + "/" + result.deviceName
