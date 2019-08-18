@@ -27,8 +27,7 @@ module.exports = app => {
   router.post('/brand/mode',  controller.brand.modeList);
 
   router.post('/auth/token', app.oAuth2Server.token());
-  router.get('/auth/authorize', controller.user.authorize)
-  router.post('/auth/authorize', app.oAuth2Server.authorize)
+  router.get('/auth/login', controller.user.authorize)
+  router.post('/auth/authorize', app.oAuth2Server.authorize())
   router.post('/aligenie/command', controller.device.aligenieCommand)
-
 };

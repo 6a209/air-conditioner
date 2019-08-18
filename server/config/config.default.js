@@ -28,7 +28,7 @@ module.exports = appInfo => {
   }
 
   config.oauth2Server = {
-    grants: ['password']
+    grants: ['authorization_code']
   }
 
   config.view = {

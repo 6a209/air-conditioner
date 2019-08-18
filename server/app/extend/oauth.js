@@ -26,7 +26,8 @@ module.exports = app => {
       console.log("getClient")
       console.log(clientId)
       console.log(clientSecret)
-      if (CLIENT_ID != clientId || CLIENT_SECRET != clientSecret) {
+      if (CLIENT_ID != clientId) {
+      // if (CLIENT_ID != clientId || CLIENT_SECRET != clientSecret) {
         return 
       }
       console.log("return client")
@@ -37,19 +38,22 @@ module.exports = app => {
       const ctx = app.createAnonymousContext();
       const user = await ctx.service.user.findUser(username, password)
       if (user) {
-        return { id: user.id }
+        return { uid: user.id }
       }
     };
 
     async saveAuthorizationCode(code, client, user) {
 
       // const ctx = app.createAnonymousContext();
-      console.log(token)
+      // console.log(token)
       console.log(client)
       console.log(user)
       console.log(code)
 
-
+      const authorizationCode = Object.assign({}, code, { user }, { client });
+      console.log("----------->>>")
+      console.log(authorizationCode)
+      return authorizationCode
     }
 
     async getAuthorizationCode(authorizationCode) {
