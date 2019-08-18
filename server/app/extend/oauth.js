@@ -1,7 +1,7 @@
 'use strict'
 
 const CLIENT_ID = "20190812"
-const CLIENT_SECRET = "72eca5db-b4e9-48b5-9f01-7e8b49791605"
+const CLIENT_SECRET = "AAB3BB7F9098388E0AD512F544AA6198"
 
 const client = {
   "id": 1,
