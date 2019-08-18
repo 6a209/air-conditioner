@@ -8,7 +8,7 @@ const client = {
   "clientId": CLIENT_ID,
   "clientSecret": CLIENT_SECRET,
   "redirectUris": [
-    "https://open.bot.tmall.com/oauth/callback"
+    "https://open.bot.tmall.com/oauth/callback?skillId=38698&token=MTY2MjI0NzkwQUZFSElORkRWUQ=="
   ],
   "refreshTokenLifetime": 0,
   "accessTokenLifetime": 0,
