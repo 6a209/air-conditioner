@@ -35,6 +35,10 @@ module.exports = app => {
     };
 
     async getUser(username, password) {
+      console.log("======getUser=============")
+      console.log(username)
+      console.log(password)
+
       const ctx = app.createAnonymousContext();
       const user = await ctx.service.user.findUser(username, password)
       if (user) {
@@ -43,9 +47,7 @@ module.exports = app => {
     };
 
     async saveAuthorizationCode(code, client, user) {
-
-      // const ctx = app.createAnonymousContext();
-      // console.log(token)
+      console.log("========saveAuthorizationCode=====")
       console.log(client)
       console.log(user)
       console.log(code)

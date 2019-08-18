@@ -1,5 +1,6 @@
 'use strict';
 
+
 /**
  * @param {Egg.Application} app - egg application
  */
@@ -28,6 +29,6 @@ module.exports = app => {
 
   router.post('/auth/token', app.oAuth2Server.token());
   router.get('/auth/login', controller.user.authorize)
-  router.post('/auth/authorize', app.oAuth2Server.authorize())
+  router.get('/auth/authorize', app.oAuth2Server.authorize())
   router.post('/aligenie/command', controller.device.aligenieCommand)
 };
