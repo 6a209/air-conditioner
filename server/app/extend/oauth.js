@@ -59,10 +59,21 @@ module.exports = app => {
     }
 
     async getAuthorizationCode(authorizationCode) {
+      console.log("authorizationCode")
       console.log(authorizationCode)
+      const user = {uid: 2}
+      const date = new Date()
+      date.setDate(31)
+      const code = {
+        "expiresAt": date,
+        "redirect_uri": "https://open.bot.tmall.com/oauth/callback?skillId=38698&token=MTY2MjI0NzkwQUZFSElORkRWUQ=="
+      }
+      let authCode = Object.assign({}, code, { user }, { client });
+      return authCode 
     }
 
     async saveToken(token, client, user) {
+      console.log("saveToken")
       const _token = Object.assign({}, token, { user }, { client });
 
       console.log("---------- saveToken------------")
@@ -71,13 +82,13 @@ module.exports = app => {
       console.log(user)
 
       return _token 
-
       // await  
     };
 
 
     async revokeAuthorizationCode(code) {
       console.log(code)
+      return true
     }
 
     async getAccessToken(bearerToken) {
