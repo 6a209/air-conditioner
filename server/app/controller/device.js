@@ -130,10 +130,14 @@ class DeviceController extends Controller {
 
   async aligenieCommand() {
     const { app, ctx } = this
+<<<<<<< HEAD
     console.log(ctx.body)
     console.log('aligenieCommand')
     const result = await this.service.aligenie.command(ctx.request.body)
     ctx.body = result
+=======
+    console.log('aligenieCommand')
+>>>>>>> fda2e5d7fd5d0763ec2bd59a1be2256f5c07d444
   }
 
   async command() {
