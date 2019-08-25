@@ -34,7 +34,6 @@ class UserService extends Service {
     return insertSuccess
   }
 
-<<<<<<< HEAD
   formatDate(expiresDate) {
     const date = new Date(expiresDate)
     return date
@@ -103,11 +102,6 @@ class UserService extends Service {
   async getUidByToken(token) {
     const result = await this.app.mysql.get('oauth_token', {access_token: token})
     return result.uid
-=======
-  async saveAuthorizationCode(client, user, code) {
-    // await this.app.mysql.get('oauth', {})
-    // await this.app.mysql.update('')
->>>>>>> fda2e5d7fd5d0763ec2bd59a1be2256f5c07d444
   }
 }
 
