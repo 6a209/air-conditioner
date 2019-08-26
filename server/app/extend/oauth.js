@@ -11,6 +11,7 @@ const client = {
     "https://open.bot.tmall.com/oauth/callback?skillId=38698&token=MTY2MjI0NzkwQUZFSElORkRWUQ=="
   ],
   "authorizationCodeLifetime": 60 * 10,
+  "accessTokenLifetime": 60 * 60 * 24,
   "grants": [
      "authorization_code"
   ]

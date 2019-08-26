@@ -99,10 +99,10 @@ class UserService extends Service {
     return oauthToken
   }
 
-  async getUidByToken(token) {
-    const result = await this.app.mysql.get('oauth_token', {access_token: token})
-    return result.uid
-  }
+  // async getUidByToken(token) {
+  //   const result = await this.app.mysql.get('oauth_token', {access_token: token})
+  //   return result.uid
+  // }
 }
 
 module.exports = UserService
