@@ -15,6 +15,10 @@
 
 
 #define UDP_PORT 9876
+#define STATUS_LED 2
+
+#define CONNECTING 0
+#define CONNECTED 1
 
 // Flash btn
 #define RESET_BTN  0
@@ -32,6 +36,7 @@ Ticker UDPTicker;
 String mqttTmp = "";
 
 void(* resetFunc) (void) = 0;
+
 
 void sendUDPBroadcast()
 {
@@ -112,16 +117,23 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   }
 }
 
+void status(int output) {
+  // not connect 
+  pinMode(STATUS_LED, OUTPUT);
+  digitalWrite(STATUS_LED, output);
+}
+
 
 void setup()
 {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  status(CONNECTING);
   WiFiManager wifiManager;
   Serial.print("--------------------------");
-  wifiManager.autoConnect("AutoConnectAP");
+  wifiManager.autoConnect("IR_WIFI");
   Serial.println("Connected to internet \n");
-
+  status(CONNECTED);
   // init mqtt 
   initMqtt(DN.c_str(), onMqttConnect, onMqttMessage);
 
@@ -170,6 +182,8 @@ void reset()
   }
   resetCount = 0;
 }
+
+
 
 void loop()
 {
