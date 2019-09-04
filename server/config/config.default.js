@@ -38,7 +38,13 @@ module.exports = appInfo => {
       '.css': 'static',
       '.js': 'static'
     },
+  }
 
+  config.lru = {
+    client: {
+      max: 1000,
+      maxAge: 1000 * 60 * 60 * 10,
+    }
   }
 
   // add your user config here
