@@ -18,7 +18,8 @@
     "egg-view-static": "^1.0.0",
     "mqtt": "^2.18.8",
     "save": "^2.3.3",
-    "svg-captcha": "^1.4.0"
+    "svg-captcha": "^1.4.0",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "autod": "^3.0.1",

@@ -1,5 +1,11 @@
 
 const Service = require('egg').Service
+const svgCaptcha = require('svg-captcha');
+const crypto = require('crypto')
+const uuidv1 = require('uuid/v1');
+
+
+
 
 class UserService extends Service {
 
@@ -23,9 +29,14 @@ class UserService extends Service {
   }
 
   async createUser(user) {
+
+    const hash = crypto.createHash('md5')
+    const uuid = uuidv1()
+    hash.update(uuid + user.mobile)
+    user.topic = hash.digest('hex').substr(0, 10) 
     const result = await this.app.mysql.insert('user', user)
     const insertSuccess = result.affectedRows === 1
-    return insertSuccess
+    if (insertSuccess) return result
   }
 
   async updateUser(user) {
@@ -103,6 +114,25 @@ class UserService extends Service {
   //   const result = await this.app.mysql.get('oauth_token', {access_token: token})
   //   return result.uid
   // }
+
+  async captcha() {
+    const captcha = svgCaptcha.create({
+      size: 4,
+      fontSize: 50,
+      ignoreChars: '0oOI1il',
+      width: 100,
+      height: 40,
+      bacground: '#cc9966'
+    });
+
+    const hash = crypto.createHash('md5')
+    const uuid = uuidv1()
+    hash.update(uuid)
+    const uuidKey = hash.digest('hex')
+    captcha.key = uuidKey
+    this.app.lru.set(uuidKey, captcha.text)     
+    return captcha;
+  }
 }
 
 module.exports = UserService

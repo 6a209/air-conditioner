@@ -7,6 +7,9 @@
 module.exports = app => {
   const { router, controller } = app;
   router.post('/login', controller.user.login);
+  router.post('/captcha', controller.user.captcha)
+  router.post('/register', controller.user.register)
+
   router.post('/device/bind', app.jwt, controller.device.bind);
   router.post('/device/unbind', app.jwt, controller.device.unbind);
   router.post('/device/list', app.jwt, controller.device.list);

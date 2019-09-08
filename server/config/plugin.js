@@ -29,5 +29,10 @@ module.exports = {
   viewStatic:  {
     enable: true,
     package: 'egg-view-static',
+  },
+
+  lru: {
+    enable: true,
+    package: 'egg-lru'
   }
 };

@@ -82,7 +82,7 @@ class AligenieService extends Service {
         status.power = POWER_ON
       } else if ("SetTemperature" == commandName) {
         status.power = POWER_ON
-        status.temperature = commandValue
+        status.temperature = parseInt(commandValue)
       } else if ("SetMode" == commandName) {
         status.power = POWER_ON
         status.mode = this.formatMode(commandValue)
