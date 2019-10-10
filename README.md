@@ -9,7 +9,7 @@
 
 * eggjs
 * mysql
-* redies
+* redis
 * emqx
 * nginx
 * docker
