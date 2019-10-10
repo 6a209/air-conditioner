@@ -39,8 +39,6 @@ https://github.com/markszabo/IRremoteESP8266
 WifiManager
 https://github.com/tzapu/WiFiManager
 
-Json解析由于内存过小放弃第三方库手写字符串解析
-
 #### 硬件设备
 
 硬件扩展板
