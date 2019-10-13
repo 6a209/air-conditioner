@@ -14,6 +14,10 @@ class DeviceService extends Service {
     for (const item of userDevice) {
       deviceIds.push(item.deviceId)
     }
+
+    if (0 == deviceIds.length) {
+      return [] 
+    }
     userDevice = await this.app.mysql.select('device', { where: { id: deviceIds } })
     return userDevice
   }
@@ -233,8 +237,6 @@ class DeviceService extends Service {
   async getStatus(key) {
     return await this.app.redis.get(key)
   }
-
-
 }
 
 module.exports = DeviceService

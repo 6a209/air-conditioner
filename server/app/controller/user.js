@@ -36,6 +36,8 @@ class UserController extends Controller {
   }
 
   async register() {
+
+    console.log("register-->>>")
     const { app, ctx } = this
     const mobile = ctx.request.body.mobile
     const password = ctx.request.body.password
@@ -43,10 +45,14 @@ class UserController extends Controller {
     const captchaKey = ctx.request.body.captchaKey
     const nickname = ctx.request.body.nickname
 
-    if (captcha != this.app.lru.get(captchaKey)) {
+
+    console.log(ctx.request.body)
+    console.log(app.lru)
+    if (captcha.toLowerCase() != this.app.lru.get(captchaKey).toLowerCase()) {
       ctx.body = ctx.helper.failRes(500, "验证码错误")
       return
     }
+
 
     const user = await this.app.mysql.get('user', { mobile })
     console.log("user => ")
