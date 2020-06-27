@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../base/http_utils.dart';
 import '../models/index_list_data.dart';
@@ -7,8 +9,10 @@ class IndexPage extends StatefulWidget {
   IndexPageState createState() => new IndexPageState();
 }
 
-class IndexPageState extends State<IndexPage> {
+class IndexPageState extends State<IndexPage> with AutomaticKeepAliveClientMixin{
   List _listData;
+
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -16,13 +20,18 @@ class IndexPageState extends State<IndexPage> {
     initData();
   }
 
-  void initData() async {
+  Future<Null> initData() async {
     print("initData");
     var response = await IRHTTP().post("/device/list");
     setState(() {
       IndexListData res = IndexListData.fromJSON(response.data);
+      print(res.data);
       _listData = res.data;
     });
+  }
+
+   Future<Null> _refresh() async {
+    await initData();
   }
 
   @override
@@ -33,7 +42,9 @@ class IndexPageState extends State<IndexPage> {
         // decoration: new BoxDecoration(
         //   color: Colors.white
         // ),
-        child: new ListView.builder(
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+            child: new ListView.builder(
           itemCount: _listData == null ? 0 : _listData.length,
           itemBuilder: (BuildContext context, int index) {
             IndexItem item = _listData[index];
@@ -90,17 +101,23 @@ class IndexPageState extends State<IndexPage> {
                         )
                       ],
                     )));
-              return GestureDetector(child: card, onTap: () {
-                print(item);
-                Navigator.of(context).pushNamed('/device/detail', 
-                  arguments: {"pid": item.productId, "name": item.name, "deviceId": item.deviceId}); 
-              });
+            return GestureDetector(
+                child: card,
+                onTap: () {
+                  print(item);
+                  Navigator.of(context).pushNamed('/device/detail', arguments: {
+                    "pid": item.productId,
+                    "name": item.name,
+                    "deviceId": item.deviceId
+                  });
+                });
           },
-        ));
+        )));
 
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("智能红外"),
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.blueAccent,
         actions: <Widget>[
           new IconButton(

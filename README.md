@@ -1,10 +1,6 @@
 ## 智能空调
 
-### 功能
-
-1. 远程控制空调
-
-2. 监控当前空调环境的温湿度
+一个可以将普通红外空调变成智能空调的IoT应用
 
 ### 独立开发部署
 
@@ -16,9 +12,7 @@
 
 ### HomeAssistant
 
-
 ### 阿里云IoT
-
 
 ### 天猫精灵
 
@@ -76,11 +70,7 @@ AsyncMqttClient
 
 https://github.com/marvinroger/async-mqtt-client
 
-
-
 MQTT Client ID  md5(PK+DN) 16位
-
-
 
 #### 空调属性
 

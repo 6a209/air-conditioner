@@ -37,7 +37,11 @@ class DeviceDetailData  {
       if (power == null) {
         power = 0;
       }
-      this.temperature = temperature;
+      if (temperature is String) {
+        this.temperature = int.parse(temperature);
+      } else {
+        this.temperature = temperature;
+      }
       this.mode = mode;
       this.power = power;
     }

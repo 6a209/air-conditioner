@@ -1,6 +1,7 @@
-# mobile_app
+# mobile app
+
+基于Flutter 开发
 
 
 
 
-### mqtt 消息转发逻辑

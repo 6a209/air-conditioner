@@ -40,6 +40,8 @@ class LoginPageState extends State<LoginPage> {
               alignment: Alignment.bottomLeft,
               child: loginForm(),
             )),
+
+        
       ],
     );
 
@@ -90,7 +92,8 @@ class LoginPageState extends State<LoginPage> {
         FlatButton(
           child: Text("注册"),
           onPressed: () {
-            showToast("暂时不开放注册，请联系开发版卖家提供账号");
+            Navigator.of(context).pushNamed("/register");
+            // showToast("暂时不开放注册，请联系开发版卖家提供账号");
           },
         )
       ],

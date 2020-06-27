@@ -1,91 +1,89 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/base/base_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile_app/base/toast.dart';
+import 'package:mobile_app/device/bloc/detail_bloc.dart';
+import 'package:mobile_app/device/bloc/detail_event.dart';
+import 'package:mobile_app/device/bloc/detail_state.dart';
 import 'package:mobile_app/device/models/command_data.dart';
 import 'package:mobile_app/device/models/device_data.dart';
-import '../bloc/device_detail_bloc.dart';
 import 'package:mobile_app/base/base_widget.dart';
 
-
-class DeviceDetailPage extends StatefulWidget {
+class DeviceDetailPage extends StatelessWidget {
   final int deviceId;
-  final int pid;
 
-  DeviceDetailPage({Key key, this.pid, this.deviceId})
-      : super(key: key);
+  const DeviceDetailPage({Key key, this.deviceId}) : super(key: key);
 
   @override
-  DeviceDetailState createState() => new DeviceDetailState();
+  Widget build(BuildContext context) {
+    final bloc = DetailBloc(deviceId: deviceId);
+    return BlocProvider<DetailBloc>(
+      create: (context) => bloc,
+      child: _DeviceDetailPage(bloc: bloc),
+    );
+  }
 }
 
-class DeviceDetailState extends State<DeviceDetailPage> {
-  bool showLoading = true;
-  TextEditingController controller;
-  static final String DETAIL_IMG = "https://irremote-1253860771.cos.ap-chengdu.myqcloud.com/big.png"; 
+class _DeviceDetailPage extends StatelessWidget {
+  final TextEditingController controller = new TextEditingController();
+  static final DETAIL_IMG =
+      "https://irremote-1253860771.cos.ap-chengdu.myqcloud.com/big.png";
+  final title = "设备详情";
+  final DetailBloc bloc;
 
-  @override
-  void initState() {
-    super.initState();
-    controller = new TextEditingController();
-
-    deviceDetailBloc.init(widget.deviceId, context);
-    deviceDetailBloc.setPageStateChangeListener((BasePageState pageState) {
-      if (pageState == BasePageState.SHOW_LOADING) {
-        showLoading = true;
-      } else {
-        showLoading = false;
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    deviceDetailBloc.dispose();
+  _DeviceDetailPage({this.bloc,
+    Key key,
+  }) : super(key: key) {
+    bloc.add(InitEvent(bloc.deviceId));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        StreamBuilder<DeviceDetailData>(
-            stream: deviceDetailBloc.detailSubject.stream,
-            builder: (context, AsyncSnapshot<DeviceDetailData> snapshot) {
-              if (snapshot.hasData) {
-                return _deviceDetail(snapshot.data);
-              } else {
-                return EmptyWidget();
-              }
-            }),
-        StreamBuilder<bool>(
-            stream: deviceDetailBloc.loadingSubject.stream,
-            initialData: false,
-            builder: (context, snapshot) {
-              print("loading");
-              print(snapshot.data);
-              // return LoadingWidget(show: true);
-              return LoadingWidget(show: snapshot.data);
-            }),
-      ],
-    );
+    final bloc = BlocProvider.of<DetailBloc>(context);
+
+    // final listener =
+    return BlocListener<DetailBloc, DetailState>(listener: (context, state) {
+      if (state is ErrorState) {
+        showToast(state.msg);
+      }
+    }, child: BlocBuilder<DetailBloc, DetailState>(
+      builder: (context, state) {
+        DeviceDetailData detailData = DeviceDetailData();
+        Widget body;
+        var show = false;
+        if (state is InitState) {
+          detailData = state.deviceData;
+          // return _body(bloc, state.deviceData);
+        }
+        if (state is UpdateInfoState) {
+          detailData = state.deviceData;
+        }
+        if (state is LoadingState) {
+          show = state.show;
+          // body = LoadingWidget(show: true);
+        } else {
+          body = _body(bloc, detailData);
+        }
+
+        body = Stack(children: <Widget>[
+          _body(bloc, detailData), LoadingWidget(show: show,)
+        ],);
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(title),
+            actions: [_popMenu(bloc, context)],
+          ),
+          body: body,
+        );
+      },
+    ));
   }
 
-  Widget _deviceDetail(DeviceDetailData data) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(data.name),
-        actions: <Widget>[
-          _popMenu(),
-        ],
-      ),
-      body: body(data),
-    );
-  }
-
-  Widget _popMenu() {
+  Widget _popMenu(DetailBloc bloc, BuildContext context) {
     return new PopupMenuButton(
       icon: new Icon(Icons.more_horiz),
       itemBuilder: (BuildContext context) {
-        List<PopupMenuItem<String>> items = new List(); 
+        List<PopupMenuItem<String>> items = new List();
         items.add(PopupMenuItem(
           value: "rename",
           child: new Text("修改名称"),
@@ -98,12 +96,13 @@ class DeviceDetailState extends State<DeviceDetailPage> {
         return items;
       },
       onSelected: (String value) {
+        // BlocProvider.of<DetailBloc>(context);
         switch (value) {
           case "rename":
-            updateName(context);
+            updateName(bloc, context);
             break;
           case "delete":
-            confirmDelete(context);
+            confirmDelete(bloc, context);
             break;
           default:
             break;
@@ -112,7 +111,8 @@ class DeviceDetailState extends State<DeviceDetailPage> {
     );
   }
 
-  Widget body(DeviceDetailData deviceData) {
+  Widget _body(DetailBloc bloc, DeviceDetailData deviceData) {
+    // this.title = deviceData.name;
     final curTemperature = deviceData.temperature;
     print("curTemperature");
     print(curTemperature);
@@ -134,8 +134,8 @@ class DeviceDetailState extends State<DeviceDetailPage> {
                 fontWeight: FontWeight.bold),
           )),
     ));
-    list.add(temperatureCtrl(deviceData));
-    list.add(functionCtrl(deviceData));
+    list.add(temperatureCtrl(bloc, deviceData));
+    list.add(functionCtrl(bloc, deviceData));
     list.add(Container(
       margin: EdgeInsets.only(bottom: 48.0),
       width: 192,
@@ -152,8 +152,8 @@ class DeviceDetailState extends State<DeviceDetailPage> {
         ),
         onPressed: () {
           deviceData.power == POWER_ON
-              ? deviceDetailBloc.powerOff()
-              : deviceDetailBloc.powerOn();
+              ? bloc.add(PowerEvent(POWER_OFF))
+              : bloc.add(PowerEvent(POWER_ON));
         },
       ),
     ));
@@ -162,7 +162,7 @@ class DeviceDetailState extends State<DeviceDetailPage> {
     );
   }
 
-  Widget temperatureCtrl(DeviceDetailData deviceData) {
+  Widget temperatureCtrl(DetailBloc bloc, DeviceDetailData deviceData) {
     return Container(
       margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 36.0),
       child: Row(
@@ -171,7 +171,7 @@ class DeviceDetailState extends State<DeviceDetailPage> {
           IconButton(
             icon: Icon(Icons.remove),
             onPressed: () {
-              deviceDetailBloc.subTemperature();
+              bloc.add(SubTemperatureEvent());
             },
           ),
           Expanded(
@@ -184,7 +184,8 @@ class DeviceDetailState extends State<DeviceDetailPage> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              deviceDetailBloc.addTemperature();
+              bloc.add(AddTemperatuerEvent());
+              // deviceDetailBloc.addTemperature();
             },
           ),
         ],
@@ -192,23 +193,23 @@ class DeviceDetailState extends State<DeviceDetailPage> {
     );
   }
 
-  Widget functionCtrl(DeviceDetailData deviceData) {
+  Widget functionCtrl(DetailBloc bloc, DeviceDetailData deviceData) {
     return Container(
       margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 36.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          funBtn("cold"),
-          funBtn("hot"),
-          funBtn("wet"),
-          funBtn("wind")
+          funBtn(bloc, "cold", deviceData.mode),
+          funBtn(bloc, "hot", deviceData.mode),
+          funBtn(bloc, "wet", deviceData.mode),
+          funBtn(bloc, "wind", deviceData.mode)
         ],
       ),
     );
   }
 
-  Widget funBtn(String name) {
-    bool isSelect = deviceDetailBloc.modeValue(name) == deviceDetailBloc.mode;
+  Widget funBtn(DetailBloc bloc, String name, int mode) {
+    bool isSelect = bloc.modeValue(name) == mode;
     return GestureDetector(
         child: ImageIcon(
           AssetImage("assets/" + name + ".png"),
@@ -216,11 +217,12 @@ class DeviceDetailState extends State<DeviceDetailPage> {
           color: isSelect ? Colors.blueAccent : Colors.grey,
         ),
         onTap: () {
-          deviceDetailBloc.funBtnClick(name);
+          bloc.add(ChangeModeEvent(name));
+          // deviceDetailBloc.funBtnClick(name);
         });
   }
 
-  void confirmDelete(BuildContext context) {
+  void confirmDelete(DetailBloc bloc, BuildContext context) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -237,7 +239,8 @@ class DeviceDetailState extends State<DeviceDetailPage> {
                 child: Text("确定"),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  deviceDetailBloc.deleteDevice(widget.deviceId);
+                  bloc.add(DeleteDeviceEvent());
+                  // deviceDetailBloc.deleteDevice(widget.deviceId);
                 },
               ),
             ],
@@ -245,7 +248,7 @@ class DeviceDetailState extends State<DeviceDetailPage> {
         });
   }
 
-  void updateName(BuildContext context) {
+  void updateName(DetailBloc bloc, BuildContext context) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -259,9 +262,12 @@ class DeviceDetailState extends State<DeviceDetailPage> {
                   Navigator.of(context).pop();
                 },
               ),
-              FlatButton(child: Text("确定"),
-                onPressed: ()  {
-                  deviceDetailBloc.updateDeviceName(widget.deviceId, controller.text);
+              FlatButton(
+                child: Text("确定"),
+                onPressed: () {
+                  bloc.add(ChangeNameEvent(controller.text));
+                  // deviceDetailBloc.updateDeviceName(
+                  //     widget.deviceId, controller.text);
                   Navigator.of(context).pop();
                 },
               )

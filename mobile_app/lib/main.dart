@@ -6,6 +6,7 @@ import 'package:mobile_app/device/pages/brand_list.dart';
 import 'package:mobile_app/device/pages/brand_mode.dart';
 import 'package:mobile_app/index/pages/about.dart';
 import 'package:mobile_app/user/login.dart';
+import 'package:mobile_app/user/register.dart';
 import 'package:mobile_app/user/user_manager.dart';
 import './index/pages/index.dart' as index;
 import './index/pages/my.dart' as my;
@@ -19,11 +20,10 @@ import 'dart:io';
 void main() async {
   // final router = Router();
   // Object a;
-
-  MqttManager.instance().init();
-  await UserManager.instance().init();
-
   runApp(MyApp());
+  MqttManager.instance().init();
+  UserManager.instance().init();
+
   // initialRoute: '/',
   // routes: <String, WidgetBuilder> {
   //   '/index': (BuildContext context) => new index.IndexPage(),
@@ -54,7 +54,6 @@ class MyApp extends StatelessWidget {
           } else if (settings.name == '/device/detail') {
             return MaterialPageRoute(
                 builder: (context) => new DeviceDetailPage(
-                      pid: argu['pid'],
                       deviceId: argu['deviceId']
                     ));
           } else if (settings.name == '/index') {
@@ -65,6 +64,8 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(builder: (context) => new BrandPage(argu["pk"], argu["dn"]));
           } else if (settings.name == '/brand/mode') {
             return MaterialPageRoute(builder: (context) => new BrandModePage(argu['name'], argu['brandId'], argu["pk"], argu["dn"]));
+          } else if (settings.name == '/register') {
+            return MaterialPageRoute(builder: (context) => new RegisterPage());
           } else if (settings.name == '/about') {
             return MaterialPageRoute(
                 builder: (context) =>
