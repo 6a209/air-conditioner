@@ -36,6 +36,8 @@ class AppBootHook {
       console.log(message)
       if (topic.startsWith('device/online')) {
         // device online 
+        console.log("--- online ---")
+        console.log(topic)
         let topicStr = topic.replace('device/online/', '')
         let { pk, dn } = this.getDeviceInfo(topicStr)
         const status = { online: 1 }

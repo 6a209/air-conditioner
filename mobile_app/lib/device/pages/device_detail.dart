@@ -65,7 +65,7 @@ class _DeviceDetailPage extends StatelessWidget {
         }
 
         body = Stack(children: <Widget>[
-          _body(bloc, detailData), LoadingWidget(show: show,)
+          _body(bloc, detailData), LoadingWidget(show: show ?? false,)
         ],);
 
         return Scaffold(

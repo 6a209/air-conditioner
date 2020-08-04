@@ -87,6 +87,27 @@ class DeviceController extends Controller {
     ctx.body = ctx.helper.successRes(200, formatResult)
   }
 
+  async disconected() {
+    const { app, ctx } = this
+    console.log("--- offline ---")
+    console.log(ctx.request.body)
+    // console.log(topic)
+    // let array = topic.split("/")
+    // if (array.length > 2) {
+    //   array = array[2].split("_")
+    //   pk = array[0]
+    //   dn = array[1]
+    //   const status = { online: 0 }
+    //   that.updateStatus(pk, dn, status)
+    // }
+  }
+
+  async connected() {
+    const { app, ctx } = this
+    console.log("--- connected ---")
+    console.log(ctx.request.body)
+  }
+
   async detail() {
     const { app, ctx } = this
     const deviceId = ctx.request.body.deviceId
@@ -134,7 +155,7 @@ class DeviceController extends Controller {
     console.log('aligenieCommand')
     const result = await this.service.aligenie.command(ctx.request.body)
     if (!result) {
-        ctx.body = ctx.helper.failRes(502, '设备出错')
+      ctx.body = ctx.helper.failRes(502, '设备出错')
     } else {
       ctx.body = result
     }

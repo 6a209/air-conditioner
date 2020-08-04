@@ -12,6 +12,10 @@ module.exports = app => {
   router.post('/captcha', controller.user.captcha)
   router.post('/register', controller.user.register)
 
+  // 访问控制 的问题
+  // router.post('/device/connect', controller.device.connected)
+  router.post('/device/discontect', controller.device.disconected)
+
   router.post('/device/bind', app.jwt, controller.device.bind);
   router.post('/device/unbind', app.jwt, controller.device.unbind);
   router.post('/device/list', app.jwt, controller.device.list);

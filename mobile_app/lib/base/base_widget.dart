@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class LoadingWidget extends StatelessWidget {
   final bool show;
 
-  LoadingWidget({this.show});
+  LoadingWidget({this.show = false});
 
   @override
   Widget build(BuildContext context) {
