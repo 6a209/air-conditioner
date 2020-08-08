@@ -70,8 +70,8 @@ class AppBootHook {
         let array = topic.split("/")
         if (array.length > 2) {
           array = array[2].split("_")
-          pk = array[0]
-          dn = array[1]
+          const pk = array[0]
+          const dn = array[1]
           const status = { online: 0 }
           that.updateStatus(pk, dn, status)
         }

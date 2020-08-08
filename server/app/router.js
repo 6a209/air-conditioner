@@ -14,7 +14,7 @@ module.exports = app => {
 
   // 访问控制 的问题
   // router.post('/device/connect', controller.device.connected)
-  router.post('/device/discontect', controller.device.disconected)
+  router.post('/device/discontected', controller.device.disconected)
 
   router.post('/device/bind', app.jwt, controller.device.bind);
   router.post('/device/unbind', app.jwt, controller.device.unbind);
