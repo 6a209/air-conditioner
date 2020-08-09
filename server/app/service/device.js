@@ -19,6 +19,10 @@ class DeviceService extends Service {
       return [] 
     }
     userDevice = await this.app.mysql.select('device', { where: { id: deviceIds } })
+    for (const item of userDevice) {
+      const status = this.getStatus(item.deviceId); 
+      item['status'] = status['online'];
+    }
     return userDevice
   }
 
