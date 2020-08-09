@@ -82,6 +82,7 @@ class DeviceController extends Controller {
       formatItem['icon'] = item.icon
       formatItem['name'] = item.name
       formatItem['deviceId'] = item.id
+      formatItem['status'] = item.status
       formatResult.push(formatItem)
     }
     ctx.body = ctx.helper.successRes(200, formatResult)
