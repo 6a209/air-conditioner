@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_app/base/mqtt_utils.dart';
 import 'package:mobile_app/device/pages/brand_list.dart';
 import 'package:mobile_app/device/pages/brand_mode.dart';
@@ -20,9 +21,15 @@ import 'dart:io';
 void main() async {
   // final router = Router();
   // Object a;
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await UserManager.instance().init();
   runApp(MyApp());
+  SystemUiOverlayStyle style = SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark);
+  SystemChrome.setSystemUIOverlayStyle(style);
   MqttManager.instance().init();
-  UserManager.instance().init();
 
   // initialRoute: '/',
   // routes: <String, WidgetBuilder> {
@@ -53,17 +60,19 @@ class MyApp extends StatelessWidget {
                     new ProductDetail(pid: argu['pid'], name: argu['name']));
           } else if (settings.name == '/device/detail') {
             return MaterialPageRoute(
-                builder: (context) => new DeviceDetailPage(
-                      deviceId: argu['deviceId']
-                    ));
+                builder: (context) =>
+                    new DeviceDetailPage(deviceId: argu['deviceId']));
           } else if (settings.name == '/index') {
             return MaterialPageRoute(builder: (context) => new MyTabs());
           } else if (settings.name == '/login') {
             return MaterialPageRoute(builder: (context) => new LoginPage());
           } else if (settings.name == '/brand') {
-            return MaterialPageRoute(builder: (context) => new BrandPage(argu["pk"], argu["dn"]));
+            return MaterialPageRoute(
+                builder: (context) => new BrandPage(argu["pk"], argu["dn"]));
           } else if (settings.name == '/brand/mode') {
-            return MaterialPageRoute(builder: (context) => new BrandModePage(argu['name'], argu['brandId'], argu["pk"], argu["dn"]));
+            return MaterialPageRoute(
+                builder: (context) => new BrandModePage(
+                    argu['name'], argu['brandId'], argu["pk"], argu["dn"]));
           } else if (settings.name == '/register') {
             return MaterialPageRoute(builder: (context) => new RegisterPage());
           } else if (settings.name == '/about') {
@@ -95,12 +104,6 @@ class MyTabsState extends State<MyTabs> with SingleTickerProviderStateMixin {
     super.initState();
     controller = new TabController(vsync: this, length: 2);
     print("initState");
-
-    // NetworkInterface.list(includeLoopback: true, includeLinkLocal: true).then((list) {
-
-    //  print("-------------------");
-    //  print(list);
-    // });
   }
 
   @override

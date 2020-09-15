@@ -9,7 +9,7 @@ abstract class DetailState extends Equatable {}
 class LoadingState extends DetailState {
 
   final bool show;
-  LoadingState({this.show});
+  LoadingState({this.show = true});
 
   @override
   List<Object> get props => [show];

@@ -181,7 +181,10 @@ class DeviceController extends Controller {
       const deviceData = await this.service.device.getDeviceByPkDn(pk, dn)
       commandInfo.deviceId = deviceData.id
     }
+    console.log("===============")
+    console.log(commandInfo)
     result = await this.service.device.executeCommand(commandInfo)
+    console.log(result)
 
     if (result.code == 200) {
       ctx.body = ctx.helper.successRes(200, {})

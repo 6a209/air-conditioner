@@ -67,14 +67,11 @@ class AppBootHook {
         // device offline
         console.log("--- offline ---")
         console.log(topic)
-        let array = topic.split("/")
-        if (array.length > 2) {
-          array = array[2].split("_")
-          const pk = array[0]
-          const dn = array[1]
-          const status = { online: 0 }
-          that.updateStatus(pk, dn, status)
-        }
+        const msgObj = JSON.parse(message)
+        const dn = msgObj.clientid
+        const pk = 'IR' 
+        const status = {"online": 0}
+        that.updateStatus(pk, dn, status)
       }
     })
   }

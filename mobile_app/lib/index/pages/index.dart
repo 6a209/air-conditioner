@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_app/base/toast.dart';
 import '../../base/http_utils.dart';
 import '../models/index_list_data.dart';
 
@@ -22,7 +23,12 @@ class IndexPageState extends State<IndexPage> with AutomaticKeepAliveClientMixin
 
   Future<Null> initData() async {
     print("initData");
-    var response = await IRHTTP().post("/device/list");
+    var response = await IRHTTP().requestPost("/device/list");
+    print(response);
+    if (response.code != 200) {
+      showToast(response.msg);
+      return;
+    }
     setState(() {
       IndexListData res = IndexListData.fromJSON(response.data);
       print(res.data);
@@ -85,11 +91,11 @@ class IndexPageState extends State<IndexPage> with AutomaticKeepAliveClientMixin
                                     width: 8,
                                     height: 8,
                                     decoration: new BoxDecoration(
-                                        color: Colors.green,
+                                        color: item.status == 1 ? Colors.green : Colors.grey,
                                         shape: BoxShape.circle),
                                   ),
                                   new Text(
-                                    "在线",
+                                    item.status == 1 ? "在线" : "离线",
                                     style: TextStyle(
                                         fontSize: 12.0,
                                         color: Color(0xff727272)),

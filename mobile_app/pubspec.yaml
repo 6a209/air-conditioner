@@ -22,7 +22,7 @@ dependencies:
   rxdart: ^0.22.0
   url_launcher: ^5.0.3
   shared_preferences: ^0.5.3+1
-  flutter_svg: ^0.17.2
+  flutter_svg: ^0.18.0
   bloc: ^2.0.0
   flutter_bloc: ^2.0.0
   equatable: ^1.0.1 

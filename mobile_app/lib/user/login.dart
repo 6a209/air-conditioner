@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/base/toast.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_app/user/user_manager.dart';
 
 class LoginPage extends StatefulWidget {
@@ -8,14 +8,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-
   TextEditingController nameController = TextEditingController();
   TextEditingController passwdController = TextEditingController();
-
 
   @override
   void initState() {
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+
   }
 
   @override
@@ -35,13 +35,11 @@ class LoginPageState extends State<LoginPage> {
         Expanded(
             flex: 2,
             child: Container(
-              margin: EdgeInsets.only(bottom: 60),
+              margin: EdgeInsets.only(bottom: 8),
               padding: EdgeInsets.only(left: 32, right: 32),
               alignment: Alignment.bottomLeft,
               child: loginForm(),
             )),
-
-        
       ],
     );
 
@@ -83,9 +81,11 @@ class LoginPageState extends State<LoginPage> {
                   color: Colors.blueAccent,
                   child: Text("登入", style: TextStyle(color: Colors.white)),
                   onPressed: () async {
-                    bool result = await UserManager.instance().login(nameController.text, passwdController.text);
+                    bool result = await UserManager.instance()
+                        .login(nameController.text, passwdController.text);
                     if (result) {
-                      Navigator.of(context).popAndPushNamed('/index', arguments: {});
+                      Navigator.of(context)
+                          .popAndPushNamed('/index', arguments: {});
                     }
                   },
                 ))),

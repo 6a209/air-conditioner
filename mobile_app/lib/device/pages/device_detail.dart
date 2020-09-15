@@ -8,37 +8,43 @@ import 'package:mobile_app/device/models/command_data.dart';
 import 'package:mobile_app/device/models/device_data.dart';
 import 'package:mobile_app/base/base_widget.dart';
 
-class DeviceDetailPage extends StatelessWidget {
+class DeviceDetailPage extends StatefulWidget {
   final int deviceId;
 
   const DeviceDetailPage({Key key, this.deviceId}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final bloc = DetailBloc(deviceId: deviceId);
-    return BlocProvider<DetailBloc>(
-      create: (context) => bloc,
-      child: _DeviceDetailPage(bloc: bloc),
-    );
-  }
+  _DeviceDetailPageState createState() => _DeviceDetailPageState();
 }
 
-class _DeviceDetailPage extends StatelessWidget {
-  final TextEditingController controller = new TextEditingController();
-  static final DETAIL_IMG =
+class _DeviceDetailPageState extends State<DeviceDetailPage> {
+  static const DETAIL_IMG =
       "https://irremote-1253860771.cos.ap-chengdu.myqcloud.com/big.png";
-  final title = "设备详情";
-  final DetailBloc bloc;
+  DetailBloc _bloc;
+  final TextEditingController controller = new TextEditingController();
+  final _title = "设备详情";
+  DeviceDetailData detailData = DeviceDetailData();
 
-  _DeviceDetailPage({this.bloc,
-    Key key,
-  }) : super(key: key) {
-    bloc.add(InitEvent(bloc.deviceId));
+  @override
+  void initState() {
+    super.initState();
+    _bloc = DetailBloc(deviceId: widget.deviceId);
+    _bloc.add(InitEvent(_bloc.deviceId));
   }
 
   @override
   Widget build(BuildContext context) {
-    final bloc = BlocProvider.of<DetailBloc>(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_title),
+        actions: [_popMenu(_bloc, context)],
+      ),
+      body: BlocProvider<DetailBloc>(create: (context) => _bloc, 
+        child: body(context)),
+    );
+  }
+
+  Widget body(BuildContext context) {
 
     // final listener =
     return BlocListener<DetailBloc, DetailState>(listener: (context, state) {
@@ -47,7 +53,6 @@ class _DeviceDetailPage extends StatelessWidget {
       }
     }, child: BlocBuilder<DetailBloc, DetailState>(
       builder: (context, state) {
-        DeviceDetailData detailData = DeviceDetailData();
         Widget body;
         var show = false;
         if (state is InitState) {
@@ -60,21 +65,18 @@ class _DeviceDetailPage extends StatelessWidget {
         if (state is LoadingState) {
           show = state.show;
           // body = LoadingWidget(show: true);
-        } else {
-          body = _body(bloc, detailData);
-        }
+        } 
 
-        body = Stack(children: <Widget>[
-          _body(bloc, detailData), LoadingWidget(show: show ?? false,)
-        ],);
-
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(title),
-            actions: [_popMenu(bloc, context)],
-          ),
-          body: body,
+        body = Stack(
+          children: <Widget>[
+            _body(_bloc, detailData),
+            LoadingWidget(
+              show: show ?? false,
+            )
+          ],
         );
+        return body;
+
       },
     ));
   }

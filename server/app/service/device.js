@@ -20,7 +20,9 @@ class DeviceService extends Service {
     }
     userDevice = await this.app.mysql.select('device', { where: { id: deviceIds } })
     for (const item of userDevice) {
-      const status = this.getStatus({productKey: item.productKey, deviceName: item.deviceName}); 
+      let status = await this.getStatus({productKey: item.productKey, deviceName: item.deviceName}); 
+      console.log(status)
+      status = JSON.parse(status)
       item['status'] = status['online'];
     }
     return userDevice
@@ -149,6 +151,8 @@ class DeviceService extends Service {
     const device = await this.app.mysql.get("device", { id: commandInfo.deviceId })
     let deviceId = device.id
     // let brandMode = commandInfo.brandMode
+    console.log("device is ")
+    console.log(device)
     if (device.productId) {
       const product = await this.service.product.getProduct(device.productId)
       commandInfo.brandMode = product.brand_mode
@@ -179,7 +183,8 @@ class DeviceService extends Service {
 
     const device = await this.app.mysql.get('device', { id: deviceId })
     // const key = device.productKey + "/" + device.deviceName
-    let status = await this.getStatus({productKey: device.productKey, deviceName: deviceName}) || "{}"
+    let status = await this.getStatus({
+      productKey: device.productKey, deviceName: device.deviceName}) || "{}"
     status = JSON.parse(status)
     console.log("status")
     console.log(status)
@@ -239,7 +244,7 @@ class DeviceService extends Service {
   }
 
   async getStatus({productKey, deviceName}) {
-    const key = "${productKey}/${deviceName}"
+    const key = `${productKey}/${deviceName}`
     return await this.app.redis.get(key)
   }
 }

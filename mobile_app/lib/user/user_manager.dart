@@ -36,6 +36,7 @@ class UserManager {
   void init() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _isLogin = prefs.getBool(IS_LOGIN_KEY) ?? false;
+    print("is login -> $_isLogin");
     if (_isLogin) {
       String headimg = prefs.getString(HEAD_IMG_KEY);
       String name = prefs.getString(NAME_KEY);
