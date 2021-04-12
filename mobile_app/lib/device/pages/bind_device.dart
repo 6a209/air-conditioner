@@ -29,13 +29,16 @@ class BindPageState extends State<BindPage> {
       });
     });
 
-    var address = new InternetAddress('0.0.0.0');
+    var address = InternetAddress.anyIPv4;
     RawDatagramSocket.bind(address, 9876).then((udpSocket) {
       _socket = udpSocket;
       udpSocket.broadcastEnabled = true;
       udpSocket.listen((data) {
         print(data.toString());
         Datagram dg = udpSocket.receive();
+        if (null == dg) {
+          return;
+        }
         _deviceAddress = dg.address;
         print(_deviceAddress);
         if (dg != null) {

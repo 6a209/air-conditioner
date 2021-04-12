@@ -18,3 +18,17 @@ class UserData {
     this.token = json['token'];
   }
 }
+
+class CaptchaData {
+  String key; 
+  String text;
+  String data;
+
+  CaptchaData({this.key, this.text, this.data});
+
+  CaptchaData.fromJSON(Map<String, dynamic> json) {
+    this.key = json["key"];
+    this.text = json["text"];
+    this.data = json["data"];
+  }
+}

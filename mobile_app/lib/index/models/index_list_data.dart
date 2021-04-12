@@ -1,14 +1,12 @@
 import '../../base/base_data.dart' as basedata;
 
-class IndexListData extends basedata.BaseData {
+class IndexListData {
   List<IndexItem> data;
 
   IndexListData({this.data});
 
-  IndexListData.fromJSON(Map<String, dynamic> json) {
-    this.code = json['code'];
-    this.msg = json['msg'];
-    this.data = (json['data'] as List).map((item) {
+  IndexListData.fromJSON(List json) {
+    this.data = json.map((item) {
       return IndexItem(productId: item['productId'], deviceId: item['deviceId'], 
         name: item['name'], status: item['status'], icon: item['icon']);  
     }).toList();

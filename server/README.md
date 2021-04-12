@@ -1,14 +1,24 @@
-# server
+# 服务端
 
+### 环境部署
 
+* nodejs
 
-## QuickStart
+* mysql
 
-<!-- add docs here for user -->
+* redis
 
-see [egg docs][egg] for more detail.
+* emqx
 
-### Development
+* nginx
+  
+  推荐使用docker部署
+
+### 应用部署
+
+业务代码基于[Eggjs]([https://eggjs.org/](https://eggjs.org/))框架开发 
+
+### 开发调试
 
 ```bash
 $ npm i
@@ -22,12 +32,3 @@ $ open http://localhost:7001/
 $ npm start
 $ npm stop
 ```
-
-### npm scripts
-
-- Use `npm run lint` to check code style.
-- Use `npm test` to run unit test.
-- Use `npm run autod` to auto detect dependencies upgrade, see [autod](https://www.npmjs.com/package/autod) for more detail.
-
-
-[egg]: https://eggjs.org

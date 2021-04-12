@@ -14,7 +14,17 @@ class DeviceService extends Service {
     for (const item of userDevice) {
       deviceIds.push(item.deviceId)
     }
+
+    if (0 == deviceIds.length) {
+      return [] 
+    }
     userDevice = await this.app.mysql.select('device', { where: { id: deviceIds } })
+    for (const item of userDevice) {
+      let status = await this.getStatus({productKey: item.productKey, deviceName: item.deviceName}); 
+      console.log(status)
+      status = JSON.parse(status)
+      item['status'] = status['online'];
+    }
     return userDevice
   }
 
@@ -41,11 +51,11 @@ class DeviceService extends Service {
   async getTopicByDevice(pk, dn) {
     const device = await this.app.mysql.get('device', { productKey: pk, deviceName: dn })
     if (!device) {
-      return null 
+      return null
     }
     const bindInfo = await this.app.mysql.get('userdevice', { 'deviceId': device.id })
     if (!bindInfo) {
-      return null 
+      return null
     }
     const user = await this.app.mysql.get('user', { id: bindInfo.uid })
     return user.topic
@@ -91,23 +101,42 @@ class DeviceService extends Service {
     return { code: 200, msg: "" }
   }
 
-  async removeBind(uid, deviceId) {
-    const result = await this.app.mysql.delete('userdevice', { uid, deviceId })
+  async unbindByDevice(pk, dn) {
+    try {
+      await this.app.mysql.beginTransactionScope(async conn => {
+        const device = await conn.get('device', {productKey: pk, deviceName: dn})
+        await conn.delete('userdevice', {deviceId: device.id})
+        device['productId'] = null
+        device['name'] = null
+        await conn.update('device', device)
+      }, this.ctx)
+    } catch(e) {
+    }
+  } 
+
+  async unbind(uid, deviceId) {
+    try {
+      await this.app.mysql.beginTransactionScope(async conn => {
+        await conn.delete('userdevice', { uid, deviceId })
+        const device = await conn.get("device", { 'id': deviceId })
+        device['productId'] = null
+        device['name'] = null
+        await conn.update('device', device)
+      }, this.ctx)
+    } catch (e) {
+      console.log(e)
+      return {code: 500, msg: "db error"}
+    }
     return result
   }
 
   async getDetail(deviceId) {
     console.log('--->> deviceId' + deviceId)
     let result = await this.app.mysql.get('device', { 'id': deviceId })
-    // const productId = result.productId
-    // const commands = await this.app.mysql.select('command', { where: { 'productId': productId }})
-    // result['commands'] = commands
-    // get device status 
-
     console.log("get detail")
     console.log(result)
     const key = result.productKey + "/" + result.deviceName
-    let status = await this.getStatus(key)
+    let status = await this.getStatus({productKey: result.productKey, deviceName: result.deviceName})
     console.log(status)
     status = JSON.parse(status)
 
@@ -122,6 +151,8 @@ class DeviceService extends Service {
     const device = await this.app.mysql.get("device", { id: commandInfo.deviceId })
     let deviceId = device.id
     // let brandMode = commandInfo.brandMode
+    console.log("device is ")
+    console.log(device)
     if (device.productId) {
       const product = await this.service.product.getProduct(device.productId)
       commandInfo.brandMode = product.brand_mode
@@ -151,8 +182,9 @@ class DeviceService extends Service {
   async _executeCommand({ commandInfo, deviceId, irdata }) {
 
     const device = await this.app.mysql.get('device', { id: deviceId })
-    const key = device.productKey + "/" + device.deviceName
-    let status = await this.getStatus(key) || "{}"
+    // const key = device.productKey + "/" + device.deviceName
+    let status = await this.getStatus({
+      productKey: device.productKey, deviceName: device.deviceName}) || "{}"
     status = JSON.parse(status)
     console.log("status")
     console.log(status)
@@ -187,57 +219,6 @@ class DeviceService extends Service {
     return { code: 200, msg: 'ok' }
   }
 
-  async ___excuteCommand({ commandId, deviceId }) {
-
-    console.log(commandId)
-    const command = await this.app.mysql.get('command', { id: commandId })
-    const device = await this.app.mysql.get('device', { id: deviceId })
-    const res = {}
-    console.log(command)
-    let size = 0
-    try {
-      const commandObj = JSON.parse(command.irdata)
-      size = commandObj.length
-      console.log("size -> " + size)
-    } catch (e) {
-      return { code: 500, msg: "command irdata json parse error" }
-    }
-    res['name'] = command.name
-    res['value'] = command.value
-    res['deviceId'] = deviceId
-
-    // info&command_array&array_size split by '&'
-    const message = JSON.stringify(res) + "&" + command.irdata + "&" + size
-    // const message = JSON.stringify(res)
-    const key = device.productKey + "/" + device.deviceName
-    let status = await this.getStatus(key) || "{}"
-
-    status = JSON.parse(status)
-    console.log("---status-----")
-    console.log(status)
-
-    if (status.online !== 1) {
-      return { code: 500, msg: "device not online" }
-    }
-
-    if (!this.app.client.connected) {
-      console.log("mqtt server disconnect")
-      return { code: 500, msg: "mqtt server disconnect" }
-    }
-    try {
-      const commandTopic = "device/sendCommand/" + device.productKey + "/" + device.deviceName
-      console.log("--- topic -----")
-      console.log(commandTopic)
-      console.log(message)
-      console.log(message.length)
-
-      await this.app.client.publish(commandTopic, message)
-    } catch (e) {
-      return { code: 500, msg: "device mqtt disconnect" }
-    }
-    return { code: 200, msg: 'ok' }
-  }
-
   async updateStatus({ key, status }) {
     console.log("udpate _____ ***** _>>>> status")
     console.log("key:" + key)
@@ -262,11 +243,10 @@ class DeviceService extends Service {
     return await this.app.redis.set(key, status)
   }
 
-  async getStatus(key) {
+  async getStatus({productKey, deviceName}) {
+    const key = `${productKey}/${deviceName}`
     return await this.app.redis.get(key)
   }
-
-
 }
 
 module.exports = DeviceService

@@ -27,6 +27,26 @@ module.exports = appInfo => {
     secret: "huahua1945"
   }
 
+  config.oauth2Server = {
+    grants: ['authorization_code']
+  }
+
+  config.view = {
+    defaultViewEngine: 'static',
+    mapping: {
+      '.html': 'static',
+      '.css': 'static',
+      '.js': 'static'
+    },
+  }
+
+  config.lru = {
+    client: {
+      max: 1000,
+      maxAge: 1000 * 60 * 60 * 10,
+    }
+  }
+
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',

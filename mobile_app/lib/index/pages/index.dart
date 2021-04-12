@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:mobile_app/base/toast.dart';
 import '../../base/http_utils.dart';
 import '../models/index_list_data.dart';
 
@@ -7,8 +10,10 @@ class IndexPage extends StatefulWidget {
   IndexPageState createState() => new IndexPageState();
 }
 
-class IndexPageState extends State<IndexPage> {
+class IndexPageState extends State<IndexPage> with AutomaticKeepAliveClientMixin{
   List _listData;
+
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -16,13 +21,23 @@ class IndexPageState extends State<IndexPage> {
     initData();
   }
 
-  void initData() async {
+  Future<Null> initData() async {
     print("initData");
-    var response = await IRHTTP().post("/device/list");
+    var response = await IRHTTP().requestPost("/device/list");
+    print(response);
+    if (response.code != 200) {
+      showToast(response.msg);
+      return;
+    }
     setState(() {
       IndexListData res = IndexListData.fromJSON(response.data);
+      print(res.data);
       _listData = res.data;
     });
+  }
+
+   Future<Null> _refresh() async {
+    await initData();
   }
 
   @override
@@ -33,7 +48,9 @@ class IndexPageState extends State<IndexPage> {
         // decoration: new BoxDecoration(
         //   color: Colors.white
         // ),
-        child: new ListView.builder(
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+            child: new ListView.builder(
           itemCount: _listData == null ? 0 : _listData.length,
           itemBuilder: (BuildContext context, int index) {
             IndexItem item = _listData[index];
@@ -74,11 +91,11 @@ class IndexPageState extends State<IndexPage> {
                                     width: 8,
                                     height: 8,
                                     decoration: new BoxDecoration(
-                                        color: Colors.green,
+                                        color: item.status == 1 ? Colors.green : Colors.grey,
                                         shape: BoxShape.circle),
                                   ),
                                   new Text(
-                                    "在线",
+                                    item.status == 1 ? "在线" : "离线",
                                     style: TextStyle(
                                         fontSize: 12.0,
                                         color: Color(0xff727272)),
@@ -90,17 +107,23 @@ class IndexPageState extends State<IndexPage> {
                         )
                       ],
                     )));
-              return GestureDetector(child: card, onTap: () {
-                print(item);
-                Navigator.of(context).pushNamed('/device/detail', 
-                  arguments: {"pid": item.productId, "name": item.name, "deviceId": item.deviceId}); 
-              });
+            return GestureDetector(
+                child: card,
+                onTap: () {
+                  print(item);
+                  Navigator.of(context).pushNamed('/device/detail', arguments: {
+                    "pid": item.productId,
+                    "name": item.name,
+                    "deviceId": item.deviceId
+                  });
+                });
           },
-        ));
+        )));
 
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("智能红外"),
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.blueAccent,
         actions: <Widget>[
           new IconButton(

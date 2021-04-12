@@ -76,11 +76,12 @@ void onMqttPublish(uint16_t packetId) {
 }
 
 
-void initMqtt(String clientId, OnMqttConnect connect, OnMqttMessage onMsg) {
+void initMqtt(const char* clientId, OnMqttConnect connect, OnMqttMessage onMsg) {
 
     onConnect = connect;
     onMessage = onMsg;
 
+    mqttClient.setClientId(clientId);
     mqttClient.onConnect(_onMqttConnect);
     mqttClient.onDisconnect(onMqttDisconnect);
     mqttClient.onSubscribe(onMqttSubscribe);
@@ -88,7 +89,6 @@ void initMqtt(String clientId, OnMqttConnect connect, OnMqttMessage onMsg) {
     mqttClient.onMessage(_onMqttMessage);
     mqttClient.onPublish(onMqttPublish);
     mqttClient.setServer(MQTT_HOST, PORT);
-    mqttClient.setClientId(clientId.c_str());
     mqttClient.setMaxTopicLength(512);
     mqttClient.setKeepAlive(60);
     // mqttClient.setCredentials(mqttUsername.c_str(), mqttPassword.c_str());
@@ -99,7 +99,7 @@ void publishMsg(String& topic, String& payload) {
   
   if (mqttClient.connected()) {
     Serial.print(topic.c_str());
-    bool result = mqttClient.publish(topic.c_str(), 1, true, payload.c_str());
+    mqttClient.publish(topic.c_str(), 1, true, payload.c_str());
   } else {
     Serial.print("mqtt not connected");
   }

@@ -12,28 +12,59 @@
 
 #include "custom_mqtt.h"
 #include <Ticker.h>
+#include <EEPROM.h>
 
-String PK = String("IR");
 
-// DN size 16
-String DN = String("E68DEA31-260F-1C");
-// String SK = String("c274761d-9a8c-42c2-992c-0974c512f4d4");
-
-//
-String uid = "uid";
 
 #define UDP_PORT 9876
+#define STATUS_LED 2
+
+#define CONNECTING 0
+#define CONNECTED 1
+
+// Flash btn
+#define RESET_BTN  0
+
+String PK = String("IR");
+// DN size 16
+String DN = String("E68DEA31-260F-1C");
+
+String uid = "uid";
+
 char udpPackage[255]; // buffer for incoming packets
 WiFiUDP udp;
-Ticker UDPTicker;
+Ticker udpTicker;
 
 String mqttTmp = "";
 
-// int curTemperture;
-// // 0 off, 1 on
-// int power;
-// // 0 制冷，1 制热，2 除湿， 3 通风
-// int mode;
+void(* resetFunc) (void) = 0;
+
+String readUid() {
+  char uid[3];
+  EEPROM.begin(2048);
+  uid[0] = EEPROM.read(0);
+  uid[1] = EEPROM.read(1);
+  uid[2] = EEPROM.read(2);
+  EEPROM.end();
+  return String(uid);
+}
+
+void writeUid() {
+  EEPROM.begin(2048);
+  EEPROM.write(0, 'u');
+  EEPROM.write(1, 'i');
+  EEPROM.write(2, 'd');
+  EEPROM.end();
+}
+
+void clearUid() {
+  EEPROM.begin(2048);
+  EEPROM.write(0, 0);
+  EEPROM.write(1, 0);
+  EEPROM.write(2, 0);
+  EEPROM.end();
+}
+
 
 void sendUDPBroadcast()
 {
@@ -45,11 +76,16 @@ void sendUDPBroadcast()
   udp.endPacket();
 }
 
+/**
+ *  uid data => uid#123 
+ */
 void parseBindData(String data)
 {
-  if (data.startsWith("uid"))
+  if (data.startsWith("uid#"))
   {
-    uid = data.substring(3);
+    uid = data.substring(4);
+    writeUid();
+    udpTicker.detach();
   }
 }
 
@@ -67,9 +103,10 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
                    size_t len, size_t index, size_t total)
 {
 
+
+  payload[len] = '\0';
   if (len + index < total) {
     // if split more than 2 cause bug！
-    payload[len] = '\0';
     mqttTmp = mqttTmp + String(payload);
     return;
   }
@@ -78,10 +115,8 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
   if (_topic.startsWith("device/sendCommand"))
   {
     Serial.println("sendIRCode");
-    payload[len] = '\0';
 
     String msg = mqttTmp + String(payload);
-    mqttTmp = "";
     Serial.println(msg.c_str());
     Serial.printf("len => %d", msg.length());
 
@@ -109,31 +144,52 @@ void onMqttMessage(char *topic, char *payload, AsyncMqttClientMessageProperties 
     json2intArray(command, data, commandLen);
 
     sendRawData(data, commandLen);
+
     String topic = String("device/status/" + PK + "/" + DN);
     publishMsg(topic, infoMsg);
+  } else if (_topic.startsWith("device/bind")){
+    String msg = mqttTmp + String(payload);
+    parseBindData(msg);
   }
+  mqttTmp = "";
+}
+
+void status(int output) {
+  // not connect 
+  pinMode(STATUS_LED, OUTPUT);
+  digitalWrite(STATUS_LED, output);
 }
 
 
 void setup()
 {
   // put your setup code here, to run once:
+  Serial.print("-------- setup ----------");
   Serial.begin(115200);
-  WiFiManager wifiManager;
-  Serial.print("--------------------------");
-  wifiManager.autoConnect("AutoConnectAP");
-  Serial.println("Connected to internet \n");
 
-  udp.begin(UDP_PORT);
-  String clientId = PK + "_" + DN;
-  initMqtt(clientId, onMqttConnect, onMqttMessage);
+  status(CONNECTING);
+  EEPROM.begin(2048);
+  EEPROM.read(0);
+  WiFiManager wifiManager;
+  wifiManager.autoConnect("IR_WIFI");
+  Serial.println("Connected to internet \n");
+  status(CONNECTED);
+  // init mqtt 
+  initMqtt(DN.c_str(), onMqttConnect, onMqttMessage);
+
+  // init irremote 
   initIR();
 
-  if (uid.equals("uid"))
+  // udp broadcast if need
+  // Serial.printf("uid is => %s", readUid());
+  if (readUid() != "uid")
   {
+    udp.begin(UDP_PORT);
     // not bind, send broadcast wait bind
-    UDPTicker.attach(5, sendUDPBroadcast);
+    udpTicker.attach(5, sendUDPBroadcast);
   }
+  // init reset btn
+  pinMode(RESET_BTN, INPUT);
 }
 
 
@@ -146,19 +202,32 @@ void onReceiveIRData(uint16_t *rawdata, int len)
   // dumpRawData();
 }
 
+int resetCount = 0;
+
+void reset() 
+{
+  while(LOW == digitalRead(RESET_BTN)) {
+    delay(200); 
+    resetCount ++;
+    if (resetCount >= 25) {
+      resetCount = 0;
+      WiFi.disconnect();
+      String topic = String("device/unbind/") + PK + "/" + DN;
+      String msg = String("unbind");
+      publishMsg(topic, msg);
+      clearUid();
+      delay(150); 
+      resetFunc();
+      return;
+    }
+  }
+  resetCount = 0;
+}
 
 
-bool test = true;
 
 void loop()
 {
+  reset();
   receiveIRData(onReceiveIRData);
-
-  int packageSize = udp.parsePacket();
-  if (packageSize)
-  {
-    int len = udp.read(udpPackage, 255);
-    udpPackage[len] = 0;
-    parseBindData(String(udpPackage));
-  }
 }

@@ -1,11 +1,21 @@
 'use strict';
 
+
 /**
  * @param {Egg.Application} app - egg application
  */
 module.exports = app => {
   const { router, controller } = app;
-  router.post('/login', controller.user.login);
+
+  router.get("/", controller.home.index)
+  router.post('/login', controller.user.login)
+  router.post('/captcha', controller.user.captcha)
+  router.post('/register', controller.user.register)
+
+  // 访问控制 的问题
+  // router.post('/device/connect', controller.device.connected)
+  router.post('/device/discontected', controller.device.disconected)
+
   router.post('/device/bind', app.jwt, controller.device.bind);
   router.post('/device/unbind', app.jwt, controller.device.unbind);
   router.post('/device/list', app.jwt, controller.device.list);
@@ -25,4 +35,9 @@ module.exports = app => {
 
   router.post('/brand/list', controller.brand.brandList);
   router.post('/brand/mode',  controller.brand.modeList);
+
+  router.post('/auth/token', app.oAuth2Server.token());
+  router.get('/auth/authorize', controller.user.authorize)
+  router.post('/auth/authorize', app.oAuth2Server.authorize())
+  router.post('/aligenie/command', controller.device.aligenieCommand)
 };

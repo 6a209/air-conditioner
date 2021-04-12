@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_app/index/models/my_action_data.dart';
 import 'package:mobile_app/user/user_manager.dart';
 import 'package:package_info/package_info.dart';
@@ -9,12 +10,16 @@ class MyPage extends StatefulWidget {
   MyPageState createState() => new MyPageState();
 }
 
-class MyPageState extends State<MyPage> {
+class MyPageState extends State<MyPage> with AutomaticKeepAliveClientMixin {
   List<MyActionData> _listData;
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
+    //     SystemUiOverlayStyle style = SystemUiOverlayStyle(
+    //     statusBarIconBrightness: Brightness.dark);
+    // SystemChrome.setSystemUIOverlayStyle(style);
     _listData = new List();
 
     var product = MyActionData(text: "我的产品", icon: Icons.apps, url: "xxxx");
@@ -33,7 +38,7 @@ class MyPageState extends State<MyPage> {
   Widget build(BuildContext context) {
     BorderSide border = BorderSide(
         width: 1, style: BorderStyle.solid, color: Color(0xffE0E0E0));
-    return new Container(
+    final container = new Container(
         // padding: EdgeInsets.all(48),
         decoration: BoxDecoration(color: Color(0xffEFEFEF)),
         child: new Column(
@@ -47,19 +52,17 @@ class MyPageState extends State<MyPage> {
                 child: new Row(
                   children: <Widget>[
                     new Container(
-                      width: 100.0,
-                      height: 100.0,
+                      width: 80.0,
+                      height: 80.0,
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                              image: NetworkImage(
-                                  "https://avatars2.githubusercontent.com/u/688545?s=460&v=4"),
-                              fit: BoxFit.cover),
+                              image: _avatar(), fit: BoxFit.cover),
                           shape: BoxShape.circle),
                     ),
                     new Container(
                       margin: EdgeInsets.only(left: 16),
                       child: Text(
-                        "我是闹闹喵",
+                        UserManager.instance().name,
                         style: new TextStyle(
                             fontSize: 18, color: Color(0xff3c3c3c)),
                       ),
@@ -77,15 +80,39 @@ class MyPageState extends State<MyPage> {
               color: Colors.white,
               margin: EdgeInsets.only(top: 12.0),
               child: FlatButton(
-                child: Text("退出登入", style: TextStyle(fontSize: 16.0, color: Color(0xff3c3c3c),)),
+                child: Text("退出登入",
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Color(0xff3c3c3c),
+                    )),
                 onPressed: () {
                   UserManager.instance().logout();
-                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/login', (Route<dynamic> route) => false);
                 },
               ),
             )
           ],
         ));
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(0),
+        child: AppBar(
+          elevation: 0,
+          brightness: Brightness.light,
+          backgroundColor: Colors.white,
+        ),
+      ),
+      body: container,
+    );
+  }
+
+  _avatar() {
+    if (null != UserManager.instance().avatar) {
+      return NetworkImage(UserManager.instance().avatar);
+    } else {
+      return AssetImage("assets/default_avatar.png");
+    }
   }
 
   Widget _buildItemList(BuildContext context) {
@@ -156,7 +183,8 @@ class MyPageState extends State<MyPage> {
       print("---------");
       print(appName);
       print(version);
-      Navigator.of(context).pushNamed('/about', arguments: {"appName": appName, "version": version});
+      Navigator.of(context).pushNamed('/about',
+          arguments: {"appName": appName, "version": version});
     }
   }
 }

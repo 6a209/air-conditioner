@@ -36,15 +36,17 @@ class AppBootHook {
       console.log(message)
       if (topic.startsWith('device/online')) {
         // device online 
+        console.log("--- online ---")
+        console.log(topic)
         let topicStr = topic.replace('device/online/', '')
-        let {pk, dn} = this.getDeviceInfo(topicStr)
-        const status = {online: 1}
+        let { pk, dn } = this.getDeviceInfo(topicStr)
+        const status = { online: 1 }
         that.updateStatus(pk, dn, status)
 
       } else if (topic.startsWith('device/receiveIR')) {
         // device receive ircode 
         let topicStr = topic.replace('device/receiveIR/', '')
-        let {pk, dn} = this.getDeviceInfo(topicStr)
+        let { pk, dn } = this.getDeviceInfo(topicStr)
         const obj = JSON.parse(message)
         console.log("length " + obj.data.length)
         that.publishIRCode2App(pk, dn, message)
@@ -52,23 +54,24 @@ class AppBootHook {
       } else if (topic.startsWith('device/status')) {
         // device update status 
         let topicStr = topic.replace('device/status/', '')
-        let {pk, dn} = this.getDeviceInfo(topicStr)
+        let { pk, dn } = this.getDeviceInfo(topicStr)
         const status = JSON.parse(message)
         console.log(status)
         that.updateStatus(pk, dn, status)
-        that.publishStatus2App(pk, dn, message)   
+        that.publishStatus2App(pk, dn, message)
+      } else if (topic.startsWith('device/unbind')) {
+        let topicStr = topic.replace('device/unbind/', '')
+        let { pk, dn } = this.getDeviceInfo(topicStr)
+        that.unbindByDevice(pk, dn)
       } else if (topic.startsWith('$SYS/brokers') && topic.endsWith("/disconnected")) {
         // device offline
         console.log("--- offline ---")
-        console.log(topic) 
-        let array = topic.split("/")
-        if (array.length > 2 ) {
-          array = array[2].split("_")
-          pk = array[0]
-          dn = array[1]
-          const status = {online: 0}
-          that.updateStatus(pk, dn, status)
-        }
+        console.log(topic)
+        const msgObj = JSON.parse(message)
+        const dn = msgObj.clientid
+        const pk = 'IR' 
+        const status = {"online": 0}
+        that.updateStatus(pk, dn, status)
       }
     })
   }
@@ -80,14 +83,13 @@ class AppBootHook {
     }
     const pk = array[0]
     const dn = array[1]
-    return {pk, dn}
+    return { pk, dn }
   }
 
   async updateStatus(pk, dn, status) {
     const ctx = await this.app.createAnonymousContext()
-    await ctx.service.device.updateStatus({key: pk + "/" + dn, status}); 
+    await ctx.service.device.updateStatus({ key: pk + "/" + dn, status });
   }
-
 
   async publishIRCode2App(pk, dn, message) {
     const ctx = await this.app.createAnonymousContext()
@@ -108,9 +110,14 @@ class AppBootHook {
     let topic = await ctx.service.device.getTopicByDevice(pk, dn)
     console.log(topic)
     if (topic) {
-      topic = 'user/' + topic + '/property/update'; 
+      topic = 'user/' + topic + '/property/update';
       this.client.publish(topic, message)
     }
+  }
+
+  async unbindByDevice(pk, dn) {
+    const ctx = await this.app.createAnonymousContext()
+    await ctx.service.device.unbindByDevice(pk, dn)
   }
 
   subscribeTopic() {
@@ -124,30 +131,20 @@ class AppBootHook {
     })
     this.client.subscribe('device/receiveIR/+/+', (err) => {
       // receive device ir code 
-      if (err) {
-        console.log(err)
-      }
+      if (err) { console.log(err) }
     })
 
     this.client.subscribe('device/status/+/+', (err) => {
-      if (err) {
-        console.log(err)
-      }
+      if (err) { console.log(err) }
+    })
+
+    this.client.subscribe('device/unbind/+/+', (err) => {
+      if (err) { console.log(err) }
     })
 
     this.client.subscribe("$SYS/brokers/+/clients/+/disconnected", (err) => {
-      if (err) {
-        console.log(err)
-      }
+      if (err) { console.log(err) }
     })
-
-    // this.client.subscribe("$SYS/brokers/#", (err) => {
-    //   if (err) {
-    //     console.log(err)
-    //   }
-    // })
-    // client.subscribe('')
-
   }
 
   async beforeClose() {

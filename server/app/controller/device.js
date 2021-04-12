@@ -23,7 +23,12 @@ class DeviceController extends Controller {
     const { app, ctx } = this
     const uid = this.getUid()
     const deviceId = ctx.request.body.deviceId
-    const result = await this.service.device.removeBind(uid, deviceId)
+    const result = await this.service.device.hasDevice(uid, deviceId)
+    if (!result) {
+      ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
+      return
+    }
+    const result = await this.service.device.unbind(uid, deviceId)
     if (result) {
       ctx.body = ctx.helper.successRes(200)
     } else {
@@ -77,9 +82,31 @@ class DeviceController extends Controller {
       formatItem['icon'] = item.icon
       formatItem['name'] = item.name
       formatItem['deviceId'] = item.id
+      formatItem['status'] = item.status
       formatResult.push(formatItem)
     }
     ctx.body = ctx.helper.successRes(200, formatResult)
+  }
+
+  async disconected() {
+    const { app, ctx } = this
+    console.log("--- offline ---")
+    console.log(ctx.request.body)
+    // console.log(topic)
+    // let array = topic.split("/")
+    // if (array.length > 2) {
+    //   array = array[2].split("_")
+    //   pk = array[0]
+    //   dn = array[1]
+    //   const status = { online: 0 }
+    //   that.updateStatus(pk, dn, status)
+    // }
+  }
+
+  async connected() {
+    const { app, ctx } = this
+    console.log("--- connected ---")
+    console.log(ctx.request.body)
   }
 
   async detail() {
@@ -123,14 +150,27 @@ class DeviceController extends Controller {
   //   }
   // }
 
+  async aligenieCommand() {
+    const { app, ctx } = this
+    console.log(ctx.request.body)
+    console.log('aligenieCommand')
+    const result = await this.service.aligenie.command(ctx.request.body)
+    if (!result) {
+      ctx.body = ctx.helper.failRes(502, '设备出错')
+    } else {
+      ctx.body = result
+    }
+  }
+
   async command() {
     const { app, ctx } = this
     const uid = this.getUid()
     const deviceId = ctx.request.body.deviceId
     const commandInfo = ctx.request.body
+    let result = {}
     if (deviceId) {
       // 用 device id 执行需要校验权限
-      let result = await this.service.device.hasDevice(uid, deviceId)
+      result = await this.service.device.hasDevice(uid, deviceId)
       if (!result) {
         ctx.body = ctx.helper.failRes(403, '你没有这个设备权限')
         return
@@ -141,7 +181,10 @@ class DeviceController extends Controller {
       const deviceData = await this.service.device.getDeviceByPkDn(pk, dn)
       commandInfo.deviceId = deviceData.id
     }
+    console.log("===============")
+    console.log(commandInfo)
     result = await this.service.device.executeCommand(commandInfo)
+    console.log(result)
 
     if (result.code == 200) {
       ctx.body = ctx.helper.successRes(200, {})
